@@ -52,10 +52,10 @@ Monorepo layout: `apps/web` (hosted) + `apps/desktop` (Tauri) + `src/pocket_agen
 
 - [x] Copy Cloudflare + React + Google OAuth template into `apps/web/`
 - [x] Run `init-from-template` (package `pocket-agent-web`, monorepo paths)
-- [ ] Agent HTTP API for dashboard (status, files, memory, commands)
-- [ ] Google OAuth (hosted and local redirect URLs)
-- [ ] Cloudflare Pages deployment workflow
-- [ ] Local static serve from Pocket Node (no Cloudflare required)
+- [x] Agent HTTP API (`GET /health`, `/status`, `/me`, `POST /chat`)
+- [x] Google OAuth (Supabase + redirect URL matrix in `docs/DEPLOYMENT.md`)
+- [x] Cloudflare Pages deployment workflow (`.github/workflows/web-pages-deploy.yml`)
+- [x] Local static serve from Pocket Node (`pocket-agent serve`)
 
 
 ## 5.3 Desktop app (`apps/desktop`)

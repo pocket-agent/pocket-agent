@@ -27,6 +27,15 @@ class AgentCore:
         self._memory = memory
 
     async def handle_message(self, user_text: str, chat_id: int | None = None) -> str:
+        return await self.handle_chat_message(user_text, chat_id=chat_id)
+
+    async def handle_chat_message(
+        self,
+        user_text: str,
+        *,
+        history: list[dict] | None = None,
+        chat_id: int | None = None,
+    ) -> str:
         log_action(
             self._logs_dir,
             "user_message",
@@ -40,9 +49,14 @@ class AgentCore:
                 return self._truncate(self._format_tool_result(tool_command["name"], result.data))
             return f"Could not complete request: {result.error}"
 
-        return await self._handle_llm_message(user_text, chat_id=chat_id)
+        return await self._handle_llm_message(user_text, chat_id=chat_id, history=history or [])
 
-    async def _handle_llm_message(self, user_text: str, chat_id: int | None = None) -> str:
+    async def _handle_llm_message(
+        self,
+        user_text: str,
+        chat_id: int | None = None,
+        history: list[dict] | None = None,
+    ) -> str:
         relevant_skills = self._skills
         memory_block = ""
         user_id = chat_id
@@ -58,7 +72,18 @@ class AgentCore:
         skills_summary = self._skills_summary(relevant_skills)
         provider = self._llm.get("reasoning")
 
-        prompt_parts = [f"User message: {user_text}"]
+        prompt_parts: list[str] = []
+        if history:
+            hist_lines: list[str] = []
+            for item in history[-20:]:
+                role = item.get("role", "user")
+                content = (item.get("content") or "").strip()
+                if content:
+                    hist_lines.append(f"{role}: {content}")
+            if hist_lines:
+                prompt_parts.append("Conversation history:\n" + "\n".join(hist_lines))
+
+        prompt_parts.append(f"User message: {user_text}")
         if memory_block:
             prompt_parts.append(memory_block)
         prompt_parts.append(f"Available skills:\n{skills_summary}")

@@ -40,7 +40,9 @@ The user owns the infrastructure, data, and workflows.
 
 Phase 1 foundation is scaffolded. See [DEVELOPMENT.md](DEVELOPMENT.md) for setup (Python 3.12+, Telegram, Gemini).
 
-Monorepo clients: [apps/web/](apps/web/) (template pending) · [apps/desktop/](apps/desktop/) (Tauri, later)
+Monorepo clients: [apps/web/](apps/web/) · [apps/desktop/](apps/desktop/) (Tauri, later)
+
+Web deploy: [apps/web/docs/DEPLOYMENT.md](apps/web/docs/DEPLOYMENT.md)
 
 ```bash
 cp .env.example .env

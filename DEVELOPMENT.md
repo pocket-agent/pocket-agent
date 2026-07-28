@@ -33,15 +33,24 @@ python3.12 -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
 cp .env.example .env   # configure tokens and keys
-pocket-agent           # Telegram bot
+pocket-agent           # Telegram bot (default)
+pocket-agent serve     # HTTP API on :8787 + optional web UI from apps/web/dist
+pocket-agent run       # Telegram + HTTP together
 ```
 
-## Web app
+Set `SUPABASE_JWT_SECRET` in `.env` (from your Supabase project JWT secret) so `/me` and `/chat` accept the web app's Supabase session tokens.
+
+## Web app + local API
 
 ```bash
+# Terminal 1 — agent API (build web first for bundled UI)
+cd apps/web && bun install && bun run build
+cd ../../
+pocket-agent serve
+
+# Terminal 2 — web dev (Vite proxies API via VITE_API_BASE_URL)
 cd apps/web
-bun install
-cp .env.example .env.local
+cp .env.example .env.local   # VITE_API_BASE_URL=http://localhost:8787
 bun run dev
 ```
 
@@ -49,9 +58,9 @@ See [apps/web/README.md](apps/web/README.md) and [apps/web/MONOREPO.md](apps/web
 
 Remove nested git if present: `rm -rf apps/web/.git`
 
-**Local Pocket Node:** build `apps/web` and serve via agent HTTP (Phase 5.2) — no Cloudflare required.
+## Web deploy (Cloudflare Pages)
 
-**Hosted:** deploy `apps/web` to Cloudflare Pages.
+See [apps/web/docs/DEPLOYMENT.md](apps/web/docs/DEPLOYMENT.md). GitHub **secrets**: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`. **Variables**: `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_API_BASE_URL`.
 
 ## Desktop app (later)
 
@@ -98,5 +107,7 @@ ruff check src tests
 ## Status
 
 **Phases 1–4** — Agent core complete (see [ROADMAP.md](ROADMAP.md)).
+
+**Phase 5.2** — Web template, HTTP API, OAuth docs, Cloudflare Pages workflow. **Next:** Tauri desktop scaffold (5.3).
 
 **Phase 5** — Monorepo scaffold ready. Next: copy web template into `apps/web/`, then Tauri scaffold in `apps/desktop/`.

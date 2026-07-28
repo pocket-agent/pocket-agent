@@ -33,3 +33,8 @@ class LlmRouter:
     @property
     def available_providers(self) -> list[str]:
         return list(self._providers.keys())
+
+    def reasoning_model(self) -> str:
+        name = self._config.provider_for_task("reasoning")
+        cfg = self._config.providers.get(name)
+        return cfg.model if cfg else name
