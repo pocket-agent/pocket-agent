@@ -1,15 +1,94 @@
-# Security Policy
+# Pocket Agent Security
 
-## Reporting a vulnerability
 
-Contact [@pocket-agent](https://github.com/pocket-agent) or use GitHub Security Advisories.
+Pocket Agent manages private information.
 
-## Scope
+Security is a core requirement.
 
-This policy covers **pocket-agent** once you add application code.
 
----
+# Secrets
 
-## Repository documents
 
-[README](README.md) | [INSTRUCTIONS](INSTRUCTIONS.md) | [CHANGELOG](CHANGELOG.md) | [CONTRIBUTING](CONTRIBUTING.md) | **SECURITY** | [CODE_OF_CONDUCT](CODE_OF_CONDUCT.md)
+Never store:
+
+- API keys
+- Tokens
+- Passwords
+
+inside git.
+
+
+Use:
+
+```
+.env
+```
+
+
+# File Permissions
+
+
+Default:
+
+Read:
+
+Required documents
+
+
+Write:
+
+Working directory only
+
+
+Delete:
+
+Never without confirmation
+
+
+# Backups
+
+
+Before modification:
+
+```
+document.xlsx
+
+↓
+
+backup/document_timestamp.xlsx
+
+```
+
+
+# Logging
+
+
+Every action must record:
+
+
+- Timestamp
+- User request
+- Tool used
+- Result
+- Errors
+
+
+# Network
+
+
+External communication must be authenticated.
+
+
+Allowed:
+
+- Telegram API
+- LLM APIs
+
+
+Avoid exposing local services publicly.
+
+
+# Principle
+
+
+The agent should be powerful but not destructive.

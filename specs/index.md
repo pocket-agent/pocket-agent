@@ -1,5 +1,15 @@
-# Moved
+---
+okf_version: "0.1"
+---
 
-The OKF bundle root is at the repository root.
+# Pocket Agent specs
 
-**Start here:** [index.md](../index.md)
+OKF feature contracts for Pocket Agent. Bundle root: [index.md](../index.md).
+
+## Features
+
+See [features/index.md](features/index.md).
+
+## History
+
+* [log.md](log.md)

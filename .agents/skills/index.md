@@ -2,20 +2,27 @@
 okf_version: "0.1"
 ---
 
-# github-repo-template skills
+# Pocket Agent skills
 
-## Shared (synced)
-
-Optional cross-template references: [auth/](shared/auth/), [supabase/](shared/supabase/)
+OKF module guides and Cursor skill packs for developing Pocket Agent.
 
 ## Local modules
 
-* [init-from-template](modules/init-from-template.md) - personalization script
+[modules/index.md](modules/index.md) — recreation guides for architecture, tools, skills, file safety, LLM routing, Telegram.
 
-## Agent skills
+## Cursor SKILL.md packs
 
-Cursor catalog: [README.md](README.md) — procedural guides (add `SKILL.md` packs when you adopt a stack).
+| Pack | Use when |
+|------|----------|
+| [pocket-agent](pocket-agent/SKILL.md) | Any Pocket Agent development; read first |
+| [safe-file-ops](safe-file-ops/SKILL.md) | File read/write/edit, backups, validation |
+| [add-tool](add-tool/SKILL.md) | New tool under `agent/tools/` |
+| [add-runtime-skill](add-runtime-skill/SKILL.md) | New runtime skill in `agent/skills/` |
 
 ## Specs
 
-[index.md](../../index.md)
+[specs/features/](../../specs/features/) · [index.md](../../index.md)
+
+## Agent skills catalog
+
+[README.md](README.md)

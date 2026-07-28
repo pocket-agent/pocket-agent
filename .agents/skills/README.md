@@ -1,37 +1,48 @@
-# github-repo-template — Agent Skills Index
+# Pocket Agent — Agent Skills Index
 
-OKF module guides and Cursor skill packs for this stack-agnostic repository shell.
+OKF module guides and Cursor skill packs for Pocket Agent development.
 
 ## OKF layers
 
 | Layer | Path |
 |-------|------|
-| Feature contracts | [`index.md`](../../index.md) (repo root) |
-| OKF skills index | [`index.md`](index.md) |
-| Shared concepts | [`shared/`](shared/) (synced from workspace `.agents/skills/`) |
-| Local modules | [`modules/`](modules/) |
+| Feature contracts | [index.md](../../index.md) (repo root) |
+| Feature specs | [specs/features/](../../specs/features/) |
+| OKF skills index | [index.md](index.md) |
+| Local modules | [modules/](modules/) |
 
 ## Local modules (OKF)
 
 | Module | Use when |
 |--------|----------|
-| [init-from-template](modules/init-from-template.md) | Running `./scripts/init-from-template.sh` or extending the init manifest |
-
-## Shared concepts (synced)
-
-Optional cross-template references — useful when this repo later gains a stack:
-
-* [auth/shared/](shared/auth/) — session, JWT, route guards
-* [supabase/shared/](shared/supabase/) — OAuth setup, worker clients
+| [architecture](modules/architecture.md) | Layer boundaries, source layout |
+| [agent-protocol](modules/agent-protocol.md) | Reasoning, memory, approval gates |
+| [tool-development](modules/tool-development.md) | `agent/tools/` implementation |
+| [skill-authoring](modules/skill-authoring.md) | `agent/skills/` runtime modules |
+| [file-safety](modules/file-safety.md) | Backup, validation, logging |
+| [llm-routing](modules/llm-routing.md) | Provider abstraction |
+| [telegram-interface](modules/telegram-interface.md) | Telegram bot layer |
 
 ## Cursor SKILL.md packs
 
-None shipped by default for this shell template. Add `.agents/skills/<pack>/SKILL.md` when you adopt a stack, then list it here.
+| Pack | Use when |
+|------|----------|
+| [pocket-agent](pocket-agent/SKILL.md) | Starting any Pocket Agent task |
+| [safe-file-ops](safe-file-ops/SKILL.md) | Safe file modification workflows |
+| [add-tool](add-tool/SKILL.md) | Adding deterministic tools |
+| [add-runtime-skill](add-runtime-skill/SKILL.md) | Adding domain skills |
 
 ## Extension order
 
-1. Read **`INSTRUCTIONS.md`** and **`index.md`**
-2. Run init from `templates/` when personalizing
-3. Add application code for your stack
-4. Document features in `specs/features/` and link from root `index.md`
-5. Add `.agents/skills/modules/` guides for non-obvious patterns
+1. Read **INSTRUCTIONS.md**, **ARCHITECTURE.md**, and root **index.md**
+2. Check **ROADMAP.md** phase and matching **specs/features/** contract
+3. Use **pocket-agent/SKILL.md** for implementation discipline
+4. Add tools/skills per **add-tool** and **add-runtime-skill** packs
+5. Update **TOOLS_SPEC.md**, **SKILLS.md**, and specs when behavior ships
+
+## Runtime vs developer skills
+
+| Path | Loaded by |
+|------|-----------|
+| `agent/skills/*.md` | Pocket Agent at runtime |
+| `.agents/skills/` | Developers and Cursor |

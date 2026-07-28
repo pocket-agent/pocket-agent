@@ -1,28 +1,238 @@
----
-okf_version: "0.1"
----
+# Pocket Agent Index
 
-# pocket-agent
 
-OKF knowledge bundle for a lightweight autonomous agent.
+## Purpose
 
-## Documentation
+This document explains the repository structure and responsibilities.
 
-* [README.md](README.md) - quick start
-* [INSTRUCTIONS.md](INSTRUCTIONS.md) - init and governance
 
-## Features
+# Documentation
 
-* [01 — Purpose](specs/features/01-purpose.md) - repo shell goals
-* [02 — Init workflow](specs/features/02-init-workflow.md) - personalize from templates/
-* [03 — GitHub automation](specs/features/03-github-automation.md) - Dependabot, CODEOWNERS, issue templates
-* [04 — Extension guidelines](specs/features/04-extension-guidelines.md) - adding application code
 
-## Skills
+## README.md
 
-* [.agents/skills/index.md](.agents/skills/index.md) — OKF modules + shared concepts
-* [.agents/skills/README.md](.agents/skills/README.md) — Cursor `SKILL.md` catalog
+Project overview.
 
-## History
+Contains:
 
-* [specs/log.md](specs/log.md)
+- Vision
+- Features
+- Architecture summary
+
+
+## INSTRUCTIONS.md
+
+Main instructions for AI coding agents.
+
+Used by:
+
+- Cursor
+- Developers
+- Future contributors
+
+
+Defines:
+
+- Coding rules
+- Architecture constraints
+- Implementation principles
+
+
+## ARCHITECTURE.md
+
+Technical architecture.
+
+Defines:
+
+- Components
+- Data flow
+- Services
+- Communication
+
+
+## SECURITY.md
+
+Security model.
+
+Defines:
+
+- Permissions
+- Secrets
+- File safety
+- Backup strategy
+
+
+## DEVELOPMENT.md
+
+Developer workflow.
+
+Contains:
+
+- Setup
+- Dependencies
+- Testing
+- Deployment
+
+
+## ROADMAP.md
+
+Feature development roadmap.
+
+
+## SKILLS.md
+
+Defines the skill system.
+
+
+## TOOLS_SPEC.md
+
+Defines available tools exposed to the agent.
+
+
+## AGENT_PROTOCOL.md
+
+Defines how the agent reasons and operates.
+
+
+# Source Structure
+
+
+## src/
+
+Main application code.
+
+
+## agent/
+
+Agent intelligence layer.
+
+
+Contains:
+
+```
+skills/
+
+tools/
+
+memory/
+
+prompts/
+
+```
+
+
+## skills/
+
+Knowledge modules.
+
+Examples:
+
+```
+pdf.md
+
+excel.md
+
+finance.md
+
+travel.md
+
+contracts.md
+
+```
+
+
+## tools/
+
+Executable capabilities.
+
+Examples:
+
+```
+search_files()
+
+read_pdf()
+
+modify_excel()
+
+send_message()
+
+```
+
+
+## memory/
+
+Persistent agent memory.
+
+
+## config/
+
+Configuration files.
+
+
+Examples:
+
+```
+llm.yaml
+
+paths.yaml
+
+settings.yaml
+
+```
+
+
+## data/
+
+Runtime information.
+
+Contains:
+
+```
+logs/
+
+queue/
+
+working/
+
+cache/
+
+```
+
+
+# Development Rule
+
+Every feature must include:
+
+- Documentation
+- Tests
+- Error handling
+- Security consideration
+
+
+# OKF Specs
+
+Numbered feature contracts derived from the docs above:
+
+* [specs/features/index.md](specs/features/index.md)
+
+| Spec | Topic |
+|------|-------|
+| [01 — Purpose](specs/features/01-purpose.md) | Vision and constraints |
+| [02 — Architecture](specs/features/02-architecture.md) | Six layers and layout |
+| [03 — Agent protocol](specs/features/03-agent-protocol.md) | Reasoning and approval |
+| [04 — Tool system](specs/features/04-tool-system.md) | Deterministic tools |
+| [05 — Skill system](specs/features/05-skill-system.md) | Runtime skills |
+| [06 — Security](specs/features/06-security.md) | Secrets, backups, logging |
+| [07 — Development](specs/features/07-development.md) | Stack and priorities |
+| [08 — Roadmap](specs/features/08-roadmap.md) | Phased delivery |
+| [09 — Extension guidelines](specs/features/09-extension-guidelines.md) | Adding tools and skills |
+
+
+# Agent Skills (developers)
+
+Cursor and coding-agent guides — not runtime `agent/skills/`:
+
+* [.agents/skills/README.md](.agents/skills/README.md) — catalog
+* [.agents/skills/index.md](.agents/skills/index.md) — OKF skills index
+* [modules/](.agents/skills/modules/) — recreation guides
+* Cursor packs: `pocket-agent`, `safe-file-ops`, `add-tool`, `add-runtime-skill`
