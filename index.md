@@ -2,9 +2,9 @@
 okf_version: "0.1"
 ---
 
-# github-repo-template
+# pocket-agent
 
-OKF knowledge bundle for the stack-agnostic repository shell.
+OKF knowledge bundle for a lightweight autonomous agent.
 
 ## Documentation
 
