@@ -30,10 +30,10 @@
 
 # Phase 4 - Memory
 
-- [ ] Personal memory
-- [ ] Vector search
-- [ ] Knowledge base
-- [ ] Skill retrieval
+- [x] Personal memory
+- [x] Vector search
+- [x] Knowledge base
+- [x] Skill retrieval
 
 
 # Phase 5 - Dashboard

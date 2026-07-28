@@ -29,6 +29,7 @@ class PathsConfig:
         data_paths = data.get("data", {})
         agent = data.get("agent", {})
         index = data.get("index", {})
+        memory = data.get("memory", {})
 
         nas_root = nas.get("root", "")
         self.nas_root = Path(nas_root).expanduser()
@@ -49,6 +50,12 @@ class PathsConfig:
         self.skills_dir = project_root / agent.get("skills_dir", "agent/skills")
         self.prompts_dir = project_root / agent.get("prompts_dir", "agent/prompts")
         self.memory_dir = project_root / agent.get("memory_dir", "agent/memory")
+
+        self.memory_db_path = project_root / memory.get("db_path", "data/cache/memory.db")
+        self.memory_chunk_size = int(memory.get("chunk_size", 1000))
+        self.embedding_model = memory.get("embedding_model", "text-embedding-004")
+        self.skill_top_k = int(memory.get("skill_top_k", 3))
+        self.vector_search_limit = int(memory.get("vector_search_limit", 50))
 
 
 class LlmProviderConfig:

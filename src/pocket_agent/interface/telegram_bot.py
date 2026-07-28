@@ -32,6 +32,10 @@ class TelegramBot:
         app.add_handler(CommandHandler("edit_excel", self._on_edit_excel))
         app.add_handler(CommandHandler("edit_word", self._on_edit_word))
         app.add_handler(CommandHandler("edit_pdf", self._on_edit_pdf))
+        app.add_handler(CommandHandler("remember", self._on_remember))
+        app.add_handler(CommandHandler("recall", self._on_recall))
+        app.add_handler(CommandHandler("kb", self._on_kb))
+        app.add_handler(CommandHandler("kb_index", self._on_kb_index))
         app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self._on_message))
         self._app = app
         return app
@@ -71,6 +75,10 @@ class TelegramBot:
             "/edit_word <path> append <text> — append paragraph\n"
             "/edit_word <path> replace_last <text> — replace last paragraph\n"
             "/edit_pdf <path> add_page <text> — add PDF page with text\n"
+            "/remember <text> — store personal memory\n"
+            "/recall <query> — search your memories\n"
+            "/kb <query> — search knowledge base\n"
+            "/kb_index — index NAS text/PDF into knowledge base\n"
             "/help — this message\n\n"
             "Or send any message for LLM assistance."
         )
@@ -194,6 +202,63 @@ class TelegramBot:
             return
         text = f"/edit_pdf {' '.join(context.args)}"
         reply = await self._agent.handle_message(text, chat_id=update.effective_chat.id)
+        await update.message.reply_text(reply)
+
+    async def _on_remember(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        if not update.effective_user or not update.message:
+            return
+        if not self._is_allowed(update.effective_user.id):
+            await update.message.reply_text("Access denied.")
+            return
+        text = " ".join(context.args).strip()
+        if not text:
+            await update.message.reply_text("Usage: /remember <preference or fact>")
+            return
+        reply = await self._agent.handle_message(
+            f"/remember {text}",
+            chat_id=update.effective_chat.id,
+        )
+        await update.message.reply_text(reply)
+
+    async def _on_recall(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        if not update.effective_user or not update.message:
+            return
+        if not self._is_allowed(update.effective_user.id):
+            await update.message.reply_text("Access denied.")
+            return
+        query = " ".join(context.args).strip()
+        if not query:
+            await update.message.reply_text("Usage: /recall <query>")
+            return
+        reply = await self._agent.handle_message(
+            f"/recall {query}",
+            chat_id=update.effective_chat.id,
+        )
+        await update.message.reply_text(reply)
+
+    async def _on_kb(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        if not update.effective_user or not update.message:
+            return
+        if not self._is_allowed(update.effective_user.id):
+            await update.message.reply_text("Access denied.")
+            return
+        query = " ".join(context.args).strip()
+        if not query:
+            await update.message.reply_text("Usage: /kb <query>")
+            return
+        reply = await self._agent.handle_message(
+            f"/kb {query}",
+            chat_id=update.effective_chat.id,
+        )
+        await update.message.reply_text(reply)
+
+    async def _on_kb_index(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        if not update.effective_user or not update.message:
+            return
+        if not self._is_allowed(update.effective_user.id):
+            await update.message.reply_text("Access denied.")
+            return
+        reply = await self._agent.handle_message("/kb_index", chat_id=update.effective_chat.id)
         await update.message.reply_text(reply)
 
     async def _on_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:

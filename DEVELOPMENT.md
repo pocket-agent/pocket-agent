@@ -13,7 +13,11 @@
 | `/edit_excel <path> <sheet> <cell>=<value>` | Safe single-cell Excel edit |
 | `/edit_word <path> append\|replace_last <text>` | Safe Word paragraph edit |
 | `/edit_pdf <path> add_page <text>` | Add PDF page with text |
-| Any text | LLM response (Gemini when configured) |
+| `/remember <text>` | Store personal memory (no secrets) |
+| `/recall <query>` | Search your memories |
+| `/kb <query>` | Search knowledge base |
+| `/kb_index` | Index NAS text/PDF into knowledge base |
+| Any text | LLM with memory + skill context (Gemini when configured) |
 
 ## Testing
 
@@ -36,4 +40,6 @@ ruff check src tests
 
 **Phase 3** — Safe editing: backup/working/validate/replace pipeline for Excel, Word, and PDF.
 
-Next (Phase 4): personal memory, vector search, knowledge base.
+**Phase 4** — Memory: personal memories, FTS + Gemini vector search, knowledge base, skill retrieval in prompts.
+
+Next (Phase 5): React dashboard on Cloudflare Pages.

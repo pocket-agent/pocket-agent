@@ -21,6 +21,7 @@ async def run() -> None:
     from pocket_agent.core.skill_loader import load_skills, load_system_prompt
     from pocket_agent.interface.telegram_bot import TelegramBot
     from pocket_agent.llm.router import LlmRouter
+    from pocket_agent.memory.service import MemoryService
     from pocket_agent.tools.setup import build_tool_registry
 
     project_root = _find_project_root()
@@ -44,7 +45,15 @@ async def run() -> None:
     llm_router = LlmRouter(settings.llm, settings.env)
     logger.info("LLM providers available: %s", llm_router.available_providers)
 
-    tools = build_tool_registry(settings.paths)
+    memory = MemoryService(settings.paths, settings.env)
+    logger.info(
+        "Memory: embeddings=%s, memories=%d, knowledge_chunks=%d",
+        memory.embeddings_available,
+        memory.personal.count(),
+        memory.knowledge.count(),
+    )
+
+    tools = build_tool_registry(settings.paths, memory=memory)
     skills = load_skills(settings.paths.skills_dir)
     system_prompt = load_system_prompt(settings.paths.prompts_dir)
 
@@ -54,6 +63,7 @@ async def run() -> None:
         skills=skills,
         system_prompt=system_prompt,
         logs_dir=settings.paths.logs_dir,
+        memory=memory,
     )
 
     bot = TelegramBot(settings.env, agent)

@@ -1,25 +1,6 @@
-nas:
-  root: /Volumes/NAS/Documents
-  allowed_read_roots:
-    - /Volumes/NAS/Documents
-
-data:
-  root: data
-  logs: data/logs
-  working: data/working
-  backup: data/backup
-  cache: data/cache
-  queue: data/queue
-
-agent:
-  skills_dir: agent/skills
-  prompts_dir: agent/prompts
-  memory_dir: agent/memory
-
-index:
-  db_path: data/cache/file_index.db
-  max_depth: 12
-  exclude_dir_names:
-    - .git
-    - .Trash
-    - __pycache__
+memory:
+  db_path: data/cache/memory.db
+  chunk_size: 1000
+  embedding_model: text-embedding-004
+  skill_top_k: 3
+  vector_search_limit: 50

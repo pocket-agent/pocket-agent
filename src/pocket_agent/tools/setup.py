@@ -1,4 +1,5 @@
 from pocket_agent.config.models import PathsConfig
+from pocket_agent.memory.service import MemoryService
 from pocket_agent.tools.communication.telegram import send_telegram
 from pocket_agent.tools.files.docx_edit import modify_docx
 from pocket_agent.tools.files.excel import analyze_excel, modify_excel
@@ -6,10 +7,20 @@ from pocket_agent.tools.files.nas import index_files, list_nas_files, search_fil
 from pocket_agent.tools.files.pdf import extract_pdf_text
 from pocket_agent.tools.files.pdf_edit import modify_pdf
 from pocket_agent.tools.files.read import read_file
+from pocket_agent.tools.memory.tools import (
+    index_knowledge,
+    recall_memory,
+    remember_memory,
+    search_knowledge,
+)
 from pocket_agent.tools.registry import ToolRegistry
 
 
-def build_tool_registry(paths: PathsConfig, bot=None) -> ToolRegistry:
+def build_tool_registry(
+    paths: PathsConfig,
+    bot=None,
+    memory: MemoryService | None = None,
+) -> ToolRegistry:
     registry = ToolRegistry()
 
     async def _list_nas(location: str | None = None, limit: int = 50):
@@ -56,6 +67,34 @@ def build_tool_registry(paths: PathsConfig, bot=None) -> ToolRegistry:
     async def _modify_docx(file_path: str, text: str, action: str = "append"):
         return await modify_docx(paths, file_path=file_path, text=text, action=action)
 
+    async def _remember(user_id: int, content: str, category: str = "preference"):
+        if memory is None:
+            from pocket_agent.tools.base import ToolResult
+
+            return ToolResult(success=False, error="Memory service not initialized")
+        return await remember_memory(memory, paths, user_id, content, category=category)
+
+    async def _recall(query: str, user_id: int | None = None, limit: int = 5):
+        if memory is None:
+            from pocket_agent.tools.base import ToolResult
+
+            return ToolResult(success=False, error="Memory service not initialized")
+        return await recall_memory(memory, paths, query, user_id=user_id, limit=limit)
+
+    async def _search_knowledge(query: str, limit: int = 5):
+        if memory is None:
+            from pocket_agent.tools.base import ToolResult
+
+            return ToolResult(success=False, error="Memory service not initialized")
+        return await search_knowledge(memory, paths, query, limit=limit)
+
+    async def _index_knowledge(max_files: int = 100):
+        if memory is None:
+            from pocket_agent.tools.base import ToolResult
+
+            return ToolResult(success=False, error="Memory service not initialized")
+        return await index_knowledge(memory, paths, max_files=max_files)
+
     async def _send_telegram(chat_id: int, text: str):
         if bot is None:
             from pocket_agent.tools.base import ToolResult
@@ -72,6 +111,10 @@ def build_tool_registry(paths: PathsConfig, bot=None) -> ToolRegistry:
     registry.register("modify_excel", _modify_excel)
     registry.register("modify_pdf", _modify_pdf)
     registry.register("modify_docx", _modify_docx)
+    registry.register("remember_memory", _remember)
+    registry.register("recall_memory", _recall)
+    registry.register("search_knowledge", _search_knowledge)
+    registry.register("index_knowledge", _index_knowledge)
     registry.register("send_telegram", _send_telegram)
 
     return registry
