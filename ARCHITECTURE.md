@@ -17,10 +17,15 @@ Current:
 - Telegram
 
 
+Planned (monorepo):
+
+- Web dashboard — `apps/web` (React, Cloudflare Pages or local static serve on Pocket Node)
+- Desktop app — `apps/desktop` (Tauri, embeds same UI as web)
+
+
 Future:
 
-- Web dashboard
-- Mobile apps
+- Mobile clients (optional)
 
 
 Responsibilities:

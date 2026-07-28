@@ -1,3 +1,65 @@
+# Pocket Agent — Development
+
+Setup, monorepo layout, testing, and deployment.
+
+## Requirements
+
+- Python 3.12+ (agent core)
+- Node.js 20+ (when `apps/web` and `apps/desktop` are populated)
+- Telegram bot token, Gemini API key (see `.env.example`)
+- NAS mount or local folder for development
+
+## Monorepo layout
+
+```
+pocket-agent/
+├── apps/
+│   ├── web/          # React + Cloudflare + Google OAuth (template → you add)
+│   └── desktop/      # Tauri app (scaffold from web, later)
+├── src/pocket_agent/ # Python agent (Telegram, tools, memory)
+├── agent/            # Runtime skills & prompts
+├── config/           # YAML config
+├── data/             # Runtime logs, cache, working files
+└── tests/            # pytest
+```
+
+See [apps/README.md](apps/README.md) for client app details.
+
+## Agent quick start
+
+```bash
+cd pocket-agent
+python3.12 -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev]"
+cp .env.example .env   # configure tokens and keys
+pocket-agent           # Telegram bot
+```
+
+## Web app
+
+```bash
+cd apps/web
+bun install
+cp .env.example .env.local
+bun run dev
+```
+
+See [apps/web/README.md](apps/web/README.md) and [apps/web/MONOREPO.md](apps/web/MONOREPO.md).
+
+Remove nested git if present: `rm -rf apps/web/.git`
+
+**Local Pocket Node:** build `apps/web` and serve via agent HTTP (Phase 5.2) — no Cloudflare required.
+
+**Hosted:** deploy `apps/web` to Cloudflare Pages.
+
+## Desktop app (later)
+
+```bash
+cd apps/desktop
+# Tauri dev/build after scaffold from apps/web
+```
+
 ## Telegram commands
 
 | Command | Action |
@@ -31,15 +93,10 @@ ruff check src tests
 - [ARCHITECTURE.md](ARCHITECTURE.md)
 - [INSTRUCTIONS.md](INSTRUCTIONS.md)
 - [specs/features/](specs/features/)
+- [apps/README.md](apps/README.md)
 
 ## Status
 
-**Phase 1** — Foundation: Python package, Telegram bot, Gemini, config, NAS access.
+**Phases 1–4** — Agent core complete (see [ROADMAP.md](ROADMAP.md)).
 
-**Phase 2** — File intelligence: SQLite index, indexed search, PDF extraction, DOCX/TXT read, Excel analysis.
-
-**Phase 3** — Safe editing: backup/working/validate/replace pipeline for Excel, Word, and PDF.
-
-**Phase 4** — Memory: personal memories, FTS + Gemini vector search, knowledge base, skill retrieval in prompts.
-
-Next (Phase 5): React dashboard on Cloudflare Pages.
+**Phase 5** — Monorepo scaffold ready. Next: copy web template into `apps/web/`, then Tauri scaffold in `apps/desktop/`.

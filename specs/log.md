@@ -1,5 +1,9 @@
 # Directory Update Log
 
+## 2026-07-28 (monorepo scaffold)
+
+* **Monorepo**: Added `apps/web` and `apps/desktop` scaffolds; expanded Phase 5 roadmap for web, Tauri, and local vs Cloudflare deployment.
+
 ## 2026-07-28
 
 * **Pocket Agent adaptation**: Replaced github-repo-template feature specs with Pocket Agent contracts (purpose, architecture, agent protocol, tools, skills, security, development, roadmap, extension).

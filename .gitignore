@@ -83,3 +83,6 @@ Thumbs.db
 # Temp
 tmp/
 temp/
+
+# Tauri (apps/desktop — when scaffolded)
+apps/desktop/src-tauri/target/

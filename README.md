@@ -40,6 +40,8 @@ The user owns the infrastructure, data, and workflows.
 
 Phase 1 foundation is scaffolded. See [DEVELOPMENT.md](DEVELOPMENT.md) for setup (Python 3.12+, Telegram, Gemini).
 
+Monorepo clients: [apps/web/](apps/web/) (template pending) · [apps/desktop/](apps/desktop/) (Tauri, later)
+
 ```bash
 cp .env.example .env
 pip install -e ".[dev]"
@@ -294,7 +296,7 @@ Claude
 pocket-agent/
 
 ├── README.md
-├── INDEX.md
+├── index.md
 ├── INSTRUCTIONS.md
 ├── ARCHITECTURE.md
 ├── SECURITY.md
@@ -304,23 +306,23 @@ pocket-agent/
 ├── TOOLS_SPEC.md
 ├── AGENT_PROTOCOL.md
 
-├── src/
+├── apps/                    # Client applications (monorepo)
+│   ├── web/                 # React + Cloudflare Pages + Google OAuth
+│   └── desktop/             # Tauri multi-platform app
 
-├── agent/
+├── src/pocket_agent/        # Python agent core
 
+├── agent/                   # Runtime skills, prompts, memory
 │   ├── skills/
-│   ├── tools/
-│   ├── memory/
-│   └── prompts/
-
+│   ├── prompts/
+│   └── memory/
 
 ├── config/
-
 ├── data/
-
 └── tests/
-
 ```
+
+Local installs serve `apps/web` from the Pocket Node without Cloudflare. Hosted deploy uses the same `apps/web` on Cloudflare Pages. `apps/desktop` wraps the UI in Tauri for desktop devices.
 
 
 # Long Term Goal

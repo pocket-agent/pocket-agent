@@ -97,71 +97,48 @@ Defines how the agent reasons and operates.
 # Source Structure
 
 
-## src/
+## Monorepo (`apps/`)
 
-Main application code.
+| App | Path | Purpose |
+|-----|------|---------|
+| Web | [apps/web/](apps/web/) | React dashboard — Cloudflare Pages or local static serve |
+| Desktop | [apps/desktop/](apps/desktop/) | Tauri shell — same UI, local-first on macOS/Windows/Linux |
+
+See [apps/README.md](apps/README.md).
 
 
-## agent/
+## Python agent (`src/pocket_agent/`)
 
-Agent intelligence layer.
+Telegram interface, agent core, tools, memory, LLM routing. Entry point: `pocket-agent` CLI.
+
+
+## Runtime agent (`agent/`)
+
+Markdown skills, system prompts, persistent memory data — not Python packages.
 
 
 Contains:
 
 ```
 skills/
-
-tools/
-
-memory/
-
 prompts/
-
+memory/
 ```
 
 
 ## skills/
 
-Knowledge modules.
-
-Examples:
-
-```
-pdf.md
-
-excel.md
-
-finance.md
-
-travel.md
-
-contracts.md
-
-```
+Knowledge modules (runtime). Examples: `pdf.md`, `excel.md`, `files.md`, `memory.md`.
 
 
 ## tools/
 
-Executable capabilities.
-
-Examples:
-
-```
-search_files()
-
-read_pdf()
-
-modify_excel()
-
-send_message()
-
-```
+Python implementations live in `src/pocket_agent/tools/`. See [agent/tools/README.md](agent/tools/README.md).
 
 
 ## memory/
 
-Persistent agent memory.
+Persistent agent memory directory (runtime files).
 
 
 ## config/

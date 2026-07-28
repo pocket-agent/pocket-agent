@@ -36,12 +36,41 @@
 - [x] Skill retrieval
 
 
-# Phase 5 - Dashboard
+# Phase 5 - Clients (monorepo)
 
-- [ ] React dashboard
-- [ ] Cloudflare Pages deployment
-- [ ] Google OAuth
-- [ ] Monitoring
+Monorepo layout: `apps/web` (hosted) + `apps/desktop` (Tauri) + `src/pocket_agent` (agent core).
+
+
+## 5.1 Monorepo scaffold
+
+- [x] `apps/` layout and documentation
+- [x] `apps/web/` — template loaded and initialized (`pocket-agent-web`)
+- [x] `apps/desktop/` — empty scaffold for Tauri app
+
+
+## 5.2 Web app (`apps/web`)
+
+- [x] Copy Cloudflare + React + Google OAuth template into `apps/web/`
+- [x] Run `init-from-template` (package `pocket-agent-web`, monorepo paths)
+- [ ] Agent HTTP API for dashboard (status, files, memory, commands)
+- [ ] Google OAuth (hosted and local redirect URLs)
+- [ ] Cloudflare Pages deployment workflow
+- [ ] Local static serve from Pocket Node (no Cloudflare required)
+
+
+## 5.3 Desktop app (`apps/desktop`)
+
+- [ ] Tauri scaffold (architecture copied from `apps/web`)
+- [ ] macOS / Windows / Linux builds
+- [ ] Embedded local web UI + localhost agent connection
+- [ ] Optional: bundle Python agent in desktop installer
+
+
+## 5.4 Shared client features
+
+- [ ] Monitoring views (agent health, logs, queue)
+- [ ] Shared UI components between web and desktop (as feasible)
+- [ ] Environment config: local vs Cloudflare vs Tauri
 
 
 # Phase 6 - Advanced Automation

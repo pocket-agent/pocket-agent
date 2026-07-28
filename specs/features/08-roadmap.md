@@ -39,12 +39,30 @@ Phased delivery. Track progress in [ROADMAP.md](../../ROADMAP.md).
 - Knowledge base
 - Skill retrieval
 
-## Phase 5 — Dashboard
+## Phase 5 — Clients (monorepo)
 
-- React dashboard
+### 5.1 Scaffold
+
+- `apps/` layout (`apps/web`, `apps/desktop`)
+- Documentation for local vs Cloudflare deployment
+
+### 5.2 Web (`apps/web`)
+
+- Cloudflare + React + Google OAuth template
+- Agent HTTP API
+- Local static serve on Pocket Node
 - Cloudflare Pages deployment
-- Google OAuth
-- Monitoring
+
+### 5.3 Desktop (`apps/desktop`)
+
+- Tauri scaffold from web architecture
+- Multi-platform builds
+- Localhost agent connection
+
+### 5.4 Shared
+
+- Monitoring views
+- OAuth across hosted and local modes
 
 ## Phase 6 — Advanced automation
 
