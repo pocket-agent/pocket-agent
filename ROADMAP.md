@@ -12,11 +12,11 @@
 
 # Phase 2 - File Intelligence
 
-- [ ] File indexing
-- [ ] Search system
-- [ ] PDF extraction
-- [ ] Document parsing
-- [ ] Spreadsheet analysis
+- [x] File indexing
+- [x] Search system
+- [x] PDF extraction
+- [x] Document parsing
+- [x] Spreadsheet analysis
 
 
 # Phase 3 - Safe Editing

@@ -43,6 +43,8 @@ class PathsConfig:
         self.cache_dir = project_root / data_paths.get("cache", "data/cache")
         self.queue_dir = project_root / data_paths.get("queue", "data/queue")
         self.index_db_path = project_root / index.get("db_path", "data/cache/file_index.db")
+        self.index_max_depth = int(index.get("max_depth", 12))
+        self.index_exclude_dirs = set(index.get("exclude_dir_names", []))
 
         self.skills_dir = project_root / agent.get("skills_dir", "agent/skills")
         self.prompts_dir = project_root / agent.get("prompts_dir", "agent/prompts")

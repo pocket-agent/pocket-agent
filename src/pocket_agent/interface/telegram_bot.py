@@ -24,7 +24,11 @@ class TelegramBot:
         app.add_handler(CommandHandler("start", self._on_start))
         app.add_handler(CommandHandler("help", self._on_help))
         app.add_handler(CommandHandler("nas", self._on_nas))
+        app.add_handler(CommandHandler("index", self._on_index))
         app.add_handler(CommandHandler("search", self._on_search))
+        app.add_handler(CommandHandler("read", self._on_read))
+        app.add_handler(CommandHandler("pdf", self._on_pdf))
+        app.add_handler(CommandHandler("excel", self._on_excel))
         app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self._on_message))
         self._app = app
         return app
@@ -42,7 +46,8 @@ class TelegramBot:
             await update.message.reply_text("Access denied.")
             return
         await update.message.reply_text(
-            "Pocket Agent online. Send a message or use /nas, /search <query>, /help."
+            "Pocket Agent online.\n"
+            "Use /help for commands or send a message for LLM assistance."
         )
 
     async def _on_help(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
@@ -53,8 +58,12 @@ class TelegramBot:
             return
         await update.message.reply_text(
             "Commands:\n"
-            "/nas — list NAS files\n"
-            "/search <query> — search file names on NAS\n"
+            "/index — rebuild file index on NAS\n"
+            "/nas — list files at NAS root\n"
+            "/search <query> — search indexed files\n"
+            "/read <path> — read TXT, DOCX, PDF, XLSX summary\n"
+            "/pdf <path> — extract PDF text\n"
+            "/excel <path> — analyze Excel workbook\n"
             "/help — this message\n\n"
             "Or send any message for LLM assistance."
         )
@@ -80,6 +89,63 @@ class TelegramBot:
             return
         reply = await self._agent.handle_message(
             f"/search {query}",
+            chat_id=update.effective_chat.id,
+        )
+        await update.message.reply_text(reply)
+
+    async def _on_index(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        if not update.effective_user or not update.message:
+            return
+        if not self._is_allowed(update.effective_user.id):
+            await update.message.reply_text("Access denied.")
+            return
+        reply = await self._agent.handle_message("/index", chat_id=update.effective_chat.id)
+        await update.message.reply_text(reply)
+
+    async def _on_read(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        if not update.effective_user or not update.message:
+            return
+        if not self._is_allowed(update.effective_user.id):
+            await update.message.reply_text("Access denied.")
+            return
+        path = " ".join(context.args).strip()
+        if not path:
+            await update.message.reply_text("Usage: /read <path>")
+            return
+        reply = await self._agent.handle_message(
+            f"/read {path}",
+            chat_id=update.effective_chat.id,
+        )
+        await update.message.reply_text(reply)
+
+    async def _on_pdf(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        if not update.effective_user or not update.message:
+            return
+        if not self._is_allowed(update.effective_user.id):
+            await update.message.reply_text("Access denied.")
+            return
+        path = " ".join(context.args).strip()
+        if not path:
+            await update.message.reply_text("Usage: /pdf <path>")
+            return
+        reply = await self._agent.handle_message(
+            f"/pdf {path}",
+            chat_id=update.effective_chat.id,
+        )
+        await update.message.reply_text(reply)
+
+    async def _on_excel(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        if not update.effective_user or not update.message:
+            return
+        if not self._is_allowed(update.effective_user.id):
+            await update.message.reply_text("Access denied.")
+            return
+        path = " ".join(context.args).strip()
+        if not path:
+            await update.message.reply_text("Usage: /excel <path>")
+            return
+        reply = await self._agent.handle_message(
+            f"/excel {path}",
             chat_id=update.effective_chat.id,
         )
         await update.message.reply_text(reply)

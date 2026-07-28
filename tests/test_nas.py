@@ -46,6 +46,18 @@ async def test_search_files(tmp_path: Path):
 
 
 @pytest.mark.asyncio
+async def test_search_files_uses_index(tmp_path: Path):
+    paths = _paths(tmp_path)
+    paths.logs_dir.mkdir(parents=True, exist_ok=True)
+    from pocket_agent.tools.files.nas import index_files
+
+    await index_files(paths)
+    result = await search_files(paths, query="tax")
+    assert result.success
+    assert result.data.get("source") == "index"
+
+
+@pytest.mark.asyncio
 async def test_rejects_disallowed_path(tmp_path: Path):
     paths = _paths(tmp_path)
     paths.logs_dir.mkdir(parents=True, exist_ok=True)

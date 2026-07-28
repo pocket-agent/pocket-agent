@@ -16,7 +16,7 @@ The runtime executes tools.
 
 Purpose:
 
-Search NAS files.
+Search NAS files (SQLite index when available; filesystem fallback).
 
 
 Input:
@@ -24,7 +24,7 @@ Input:
 ```
 query
 location
-filters
+filters (extension)
 ```
 
 
@@ -38,6 +38,14 @@ metadata
 
 ---
 
+## index_files()
+
+Purpose:
+
+Rebuild the SQLite file index by scanning allowed NAS roots.
+
+
+---
 
 ## read_file()
 
@@ -62,8 +70,7 @@ Supported:
 
 ## analyze_excel()
 
-
-Reads workbook structure.
+Reads workbook structure and sample rows.
 
 
 ## modify_excel()
@@ -82,6 +89,8 @@ Requirements:
 
 
 ## extract_pdf_text()
+
+Extracts text from PDF files (PyMuPDF). Implemented in Phase 2.
 
 
 ## modify_pdf()
