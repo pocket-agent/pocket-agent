@@ -104,8 +104,17 @@ def run_init(
     project_root: Path | None = None,
     only: str = "all",
     force: bool = False,
+    skip_setup: bool = False,
 ) -> int:
     root = project_root or find_project_root()
+
+    if not skip_setup:
+        from pocket_agent.cli.setup_wizard import run_setup
+
+        setup_code = run_setup(project_root=root, force=False)
+        if setup_code != 0:
+            return setup_code
+
     config = load_apps_config(root)
     apps = config.get("apps", {})
 
@@ -155,10 +164,15 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Replace scaffold or existing directory (destructive)",
     )
+    parser.add_argument(
+        "--skip-setup",
+        action="store_true",
+        help="Skip writing config/user-setup.yaml (all-local defaults)",
+    )
     args = parser.parse_args(argv)
 
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
-    return run_init(only=args.only, force=args.force)
+    return run_init(only=args.only, force=args.force, skip_setup=args.skip_setup)
 
 
 if __name__ == "__main__":

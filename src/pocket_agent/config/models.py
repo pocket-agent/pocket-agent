@@ -15,8 +15,7 @@ class AppSettings(BaseSettings):
     anthropic_api_key: str = Field(default="", alias="ANTHROPIC_API_KEY")
     nas_root: str = Field(default="", alias="NAS_ROOT")
     log_level: str = Field(default="INFO", alias="LOG_LEVEL")
-    supabase_jwt_secret: str = Field(default="", alias="SUPABASE_JWT_SECRET")
-    supabase_jwt_audience: str = Field(default="authenticated", alias="SUPABASE_JWT_AUDIENCE")
+    google_client_id: str = Field(default="", alias="GOOGLE_CLIENT_ID")
 
     def allowed_user_ids(self) -> set[int]:
         if not self.telegram_allowed_user_ids.strip():

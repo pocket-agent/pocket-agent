@@ -1,0 +1,15 @@
+name = "repo-name"
+main = "src/index.ts"
+compatibility_date = "2026-07-03"
+
+[env.production]
+routes = [
+  { pattern = "api.demo-route.com/*", custom_domain = true }
+]
+vars = { ENVIRONMENT = "production" }
+
+[env.staging]
+routes = [
+  { pattern = "staging-api.demo-route.com/*", custom_domain = true }
+]
+vars = { ENVIRONMENT = "staging" }

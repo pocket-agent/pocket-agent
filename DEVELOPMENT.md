@@ -30,7 +30,7 @@ pocket-agent/
 
 See [apps/README.md](apps/README.md) and [docs/APPS_ARCHITECTURE.md](docs/APPS_ARCHITECTURE.md).
 
-## First-time monorepo setup
+# First-time monorepo setup
 
 ```bash
 cd pocket-agent
@@ -39,12 +39,13 @@ source .venv/bin/activate
 pip install -e ".[dev]"
 cp .env.example .env
 
-# Clone nested app repos (web + api)
-pocket-agent init
-# or: ./scripts/init-apps.sh
+pocket-agent setup   # all-local profile → config/user-setup.yaml
+pocket-agent init    # clone web + api repos (+ runs setup if needed)
 ```
 
-Each app under `apps/web` and `apps/api` is its own git repository.
+Default profile **`all-local`**: web (Vite), API (Hono `wrangler dev`), agent (`pocket-agent serve`). No Cloudflare deploy required.
+
+API stack: **Hono** on Workers — see [docs/API_STACK.md](docs/API_STACK.md).
 
 ## Agent (Pocket Node)
 

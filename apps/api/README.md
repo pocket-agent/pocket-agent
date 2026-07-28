@@ -1,34 +1,53 @@
-# API app (`apps/api`)
+# Pocket Agent API (`apps/api`)
 
-Placeholder for **pocket-agent-api-app** — Cloudflare Worker that validates Google OAuth tokens and proxies requests to your **Pocket Node** (local Python agent).
+Hono **Cloudflare Worker** — validates **Google OAuth ID tokens** (JWT) and will proxy to the Pocket Node Python agent.
 
-## Status
+Monorepo: [../../README.md](../../README.md) · Architecture: [../../docs/APPS_ARCHITECTURE.md](../../docs/APPS_ARCHITECTURE.md)
 
-**Empty scaffold** — load your template here, or clone the official repo:
+## Auth (no Supabase)
+
+1. Web/desktop sign in with **Google** using `GOOGLE_CLIENT_ID` in the frontend.
+2. Frontend sends `Authorization: Bearer <google_id_token>` on API calls.
+3. Worker verifies the JWT with [Google's JWKS](https://www.googleapis.com/oauth2/v3/certs) and checks `aud` matches `GOOGLE_CLIENT_ID`.
+
+## Enabled routes
+
+| Route | Auth | Description |
+|-------|------|-------------|
+| `GET /health` | No | Liveness |
+| `GET /auth` | Google JWT | Token valid + minimal identity |
+| `GET /me` | Google JWT | Profile from token claims |
+| `POST /chat` | Google JWT | Proxy to Pocket Node (`POCKET_NODE_URL`) |
+
+## Local dev
 
 ```bash
-pocket-agent init --only api
-# or from repo root:
-./scripts/init-apps.sh api
+cp .env.example .dev.vars
+# Set GOOGLE_CLIENT_ID (same as web app)
+npm install
+npm run dev
 ```
 
-Repository: [pocket-agent/pocket-agent-api-app](https://github.com/pocket-agent/pocket-agent-api-app)
+Default worker port is often `8787` — use `8788` in `config/user-setup.yaml` if the agent also uses `8787`:
 
-## Role in the stack
+```bash
+wrangler dev --port 8788
+```
 
-| Layer | Deploy target | Responsibility |
-|-------|---------------|----------------|
-| `apps/web` | Cloudflare Pages | React UI, Google Client ID in browser |
-| `apps/api` | Cloudflare Worker | Verify Google tokens, route to Pocket Node |
-| `src/pocket_agent` | Pocket Node (local) | LLM keys, tools, files, memory |
+## Environment
 
-The browser never holds LLM API keys. OAuth identifies the user; the worker forwards actions to the agent (local dev or via **Cloudflare Tunnel** in production).
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `GOOGLE_CLIENT_ID` | Yes | Google Cloud OAuth client ID (shared with web/Tauri) |
+| `ALLOWED_ORIGINS` | No | CORS origins (comma-separated) |
+| `POCKET_NODE_URL` | No | Pocket Node URL when proxy routes are enabled |
+
+Deploy secrets: `wrangler secret put GOOGLE_CLIENT_ID`
+
+## Frontend contract
+
+Store the Google **ID token** as `localStorage['x-auth-token']` (same key as the web template) so `apiFetch` attaches it as Bearer JWT.
 
 ## Nested git
 
-Like `apps/web`, this folder is its own git repository after clone. Commit and push from `apps/api/`, not from the monorepo root for app-specific changes.
-
-## Docs
-
-- [docs/APPS_ARCHITECTURE.md](../../docs/APPS_ARCHITECTURE.md)
-- [apps/README.md](../README.md)
+This folder is a separate git repo inside the monorepo.

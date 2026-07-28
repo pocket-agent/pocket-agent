@@ -8,7 +8,8 @@ apps:
     repo: https://github.com/pocket-agent/pocket-agent-api-app.git
     path: apps/api
     deploy: cloudflare-worker
-    description: Cloudflare Worker — validates Google tokens, proxies to Pocket Node
+    stack: hono
+    description: Hono Worker — Google OAuth verify, proxy to Pocket Node (or cloud relay)
   cli:
     repo: https://github.com/pocket-agent/pocket-agent-cli.git
     path: apps/cli

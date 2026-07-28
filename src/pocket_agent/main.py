@@ -77,13 +77,19 @@ def main() -> None:
         sys.exit(init_main(sys.argv[2:]))
         return
 
+    if len(sys.argv) > 1 and sys.argv[1] == "setup":
+        from pocket_agent.cli.setup_wizard import main as setup_main
+
+        sys.exit(setup_main(sys.argv[2:]))
+        return
+
     parser = argparse.ArgumentParser(prog="pocket-agent")
     parser.add_argument(
         "command",
         nargs="?",
         default="telegram",
-        choices=["telegram", "serve", "run", "init"],
-        help="telegram: bot only; serve: HTTP API; run: both; init: clone app repos",
+        choices=["telegram", "serve", "run", "init", "setup"],
+        help="telegram|serve|run|init|setup",
     )
     args = parser.parse_args()
 
@@ -92,6 +98,13 @@ def main() -> None:
 
         logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
         sys.exit(run_init())
+        return
+
+    if args.command == "setup":
+        from pocket_agent.cli.setup_wizard import run_setup
+
+        logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
+        sys.exit(run_setup())
         return
 
     run_agent_command(args.command)

@@ -1,0 +1,46 @@
+{
+  "name": "repo-name",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cloudflare Worker API with Hono, Supabase Auth, and Google Gemini.",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/owner-username/repo-name.git"
+  },
+  "homepage": "https://github.com/owner-username/repo-name#readme",
+  "bugs": {
+    "url": "https://github.com/owner-username/repo-name/issues"
+  },
+  "author": {
+    "name": "author-display-name",
+    "email": "author-id+author-github-login@users.noreply.github.com",
+    "url": "https://github.com/author-github-login"
+  },
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src --ext .ts",
+    "format": "prettier --write \"src/**/*.ts\""
+  },
+  "dependencies": {
+    "@google/genai": "^1.0.0",
+    "hono": "^4.1.0",
+    "@supabase/supabase-js": "^2.38.0",
+    "zod": "^3.22.4",
+    "@hono/zod-validator": "^0.2.0",
+    "jose": "^5.1.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240125.0",
+    "wrangler": "^4.97.0",
+    "typescript": "^5.3.0",
+    "eslint": "^8.55.0",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.1.0",
+    "@types/node": "^20.10.0"
+  }
+}

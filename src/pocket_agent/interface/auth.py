@@ -1,6 +1,10 @@
 import jwt
+from jwt import PyJWKClient
 
 from pocket_agent.config.models import AppSettings
+
+_GOOGLE_JWKS = PyJWKClient("https://www.googleapis.com/oauth2/v3/certs")
+_GOOGLE_ISSUERS = ["https://accounts.google.com", "accounts.google.com"]
 
 
 class AuthError(Exception):
@@ -19,20 +23,22 @@ def extract_bearer_token(authorization: str | None) -> str | None:
     return token or None
 
 
-def verify_supabase_jwt(token: str, env: AppSettings) -> dict:
-    secret = env.supabase_jwt_secret
-    if not secret:
+def verify_google_id_token(token: str, env: AppSettings) -> dict:
+    client_id = env.google_client_id.strip()
+    if not client_id:
         raise AuthError(
-            "SUPABASE_JWT_SECRET is not configured on the agent",
+            "GOOGLE_CLIENT_ID is not configured on the agent",
             status_code=503,
         )
 
     try:
+        signing_key = _GOOGLE_JWKS.get_signing_key_from_jwt(token)
         return jwt.decode(
             token,
-            secret,
-            algorithms=["HS256"],
-            audience=env.supabase_jwt_audience,
+            signing_key.key,
+            algorithms=["RS256"],
+            audience=client_id,
+            issuer=_GOOGLE_ISSUERS,
         )
     except jwt.ExpiredSignatureError:
         raise AuthError("Token expired", status_code=401) from None

@@ -1,0 +1,35 @@
+# First-time setup defaults — copied to config/user-setup.yaml by pocket-agent setup
+# Profile: everything runs locally; no Cloudflare deploy required.
+
+profile: all-local
+
+web:
+  mode: local
+  url: http://localhost:5173
+  deploy: none
+
+api:
+  mode: local
+  url: http://localhost:8788
+  deploy: none
+  stack: hono
+  # wrangler dev in apps/api; proxies to agent below
+
+agent:
+  mode: local
+  url: http://127.0.0.1:8787
+  command: pocket-agent serve
+
+routing:
+  # pocket_node: worker proxies to agent (default — tools, files, memory on node)
+  # cloud_relay: worker calls cloud LLMs directly (no Pocket Node — chat only)
+  llm: pocket_node
+
+tunnel:
+  enabled: false
+  # provider: cloudflared | nginx
+  # public_url: https://your-tunnel.example.com
+
+google_oauth:
+  # Same Client ID in apps/web, apps/desktop, and worker GOOGLE_CLIENT_ID
+  client_id: ""

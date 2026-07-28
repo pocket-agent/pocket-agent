@@ -53,19 +53,18 @@ Layout: `apps/web` + `apps/api` + `apps/desktop` + `apps/cli` + `src/pocket_agen
 
 ## 5.2 Web app (`apps/web`)
 
-- [x] Initial React template in monorepo (legacy Supabase flow)
-- [ ] Migrate to `pocket-agent-web-app` — direct Google OAuth, no Supabase
-- [ ] Cloudflare Pages deploy workflow (update for new template)
-- [x] Local dev against Pocket Node (`pocket-agent serve`)
+- [x] Direct Google OAuth (`@react-oauth/google`, no Supabase)
+- [x] Cloudflare Pages deploy workflow (Google Client ID env)
+- [x] Local dev against API worker → Pocket Node
 
 
-## 5.3 API worker (`apps/api`)
+## 5.3 API worker (`apps/api`) — Hono on Cloudflare Workers
 
-- [ ] Load `pocket-agent-api-app` template
-- [ ] Google token verification (shared Google Cloud client with web/Tauri)
-- [ ] Proxy `/health`, `/me`, `/chat` to Pocket Node
+- [x] Hono template in `apps/api`
+- [x] Google ID token verification (shared Google Cloud client)
+- [x] Proxy `POST /chat` to Pocket Node
 - [ ] Cloudflare Worker deploy workflow
-- [ ] Pocket Node URL config (local + Cloudflare Tunnel)
+- [ ] Pocket Node tunnel URL in production worker secrets
 
 
 ## 5.4 Desktop app (`apps/desktop`)
