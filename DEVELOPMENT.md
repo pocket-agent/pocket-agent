@@ -57,17 +57,26 @@ pocket-agent run       # Telegram + HTTP together
 
 The Python agent holds LLM API keys and executes tools. Hosted web does not call LLM providers directly — the API worker proxies to this service (local or via Cloudflare Tunnel).
 
-## Local full stack (target)
+## Local full stack
+
+```bash
+./scripts/dev-stack.sh   # print all terminal commands
+```
+
+Or manually:
 
 ```bash
 # Terminal 1 — Pocket Node
 pocket-agent serve
 
-# Terminal 2 — API worker (after apps/api template lands)
+# Terminal 2 — API worker
 cd apps/api && npm run dev
 
 # Terminal 3 — Web
 cd apps/web && bun install && bun run dev
+
+# Optional — Tauri desktop (starts web + native window)
+cd apps/desktop && npm install && npm run dev
 ```
 
 ## Deployment
@@ -80,6 +89,8 @@ cd apps/web && bun install && bun run dev
 | `apps/desktop`, `apps/cli` | Desktop install only |
 
 Production flow: Pages web → Worker API → tunnel URL → `pocket-agent serve`.
+
+See [apps/api/docs/DEPLOYMENT.md](apps/api/docs/DEPLOYMENT.md) for Worker secrets (`POCKET_NODE_URL`, `GOOGLE_CLIENT_ID`, `ALLOWED_ORIGINS`).
 
 ## Telegram commands
 

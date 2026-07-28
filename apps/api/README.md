@@ -44,6 +44,8 @@ wrangler dev --port 8788
 
 Deploy secrets: `wrangler secret put GOOGLE_CLIENT_ID`
 
+**Production deploy:** [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) · CI: [api-worker-deploy.yml](../../.github/workflows/api-worker-deploy.yml)
+
 ## Frontend contract
 
 Store the Google **ID token** as `localStorage['x-auth-token']` (same key as the web template) so `apiFetch` attaches it as Bearer JWT.

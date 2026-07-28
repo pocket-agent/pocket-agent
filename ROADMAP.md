@@ -63,15 +63,15 @@ Layout: `apps/web` + `apps/api` + `apps/desktop` + `apps/cli` + `src/pocket_agen
 - [x] Hono template in `apps/api`
 - [x] Google ID token verification (shared Google Cloud client)
 - [x] Proxy `POST /chat` to Pocket Node
-- [ ] Cloudflare Worker deploy workflow
-- [ ] Pocket Node tunnel URL in production worker secrets
+- [x] Cloudflare Worker deploy workflow (`.github/workflows/api-worker-deploy.yml`)
+- [x] Pocket Node tunnel URL via `POCKET_NODE_URL` secret (see `apps/api/docs/DEPLOYMENT.md`)
 
 
 ## 5.4 Desktop app (`apps/desktop`)
 
-- [ ] Tauri scaffold (architecture copied from `apps/web`)
-- [ ] Same Google OAuth client ID as web
-- [ ] macOS / Windows / Linux builds
+- [x] Tauri scaffold (embeds `apps/web` UI)
+- [ ] Same Google OAuth client ID — desktop redirect URIs in Google Cloud
+- [ ] macOS / Windows / Linux release builds (icons + CI)
 - [ ] Embedded local web UI + API worker / localhost agent
 - [ ] Optional: bundle Python agent in desktop installer
 

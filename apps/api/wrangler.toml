@@ -2,8 +2,23 @@ name = "pocket-agent-api"
 main = "src/index.ts"
 compatibility_date = "2026-06-08"
 
+# Local dev: wrangler dev (port 8788) → POCKET_NODE_URL (agent on 8787)
+[dev]
+port = 8788
+local_protocol = "http"
+
+[vars]
+ENVIRONMENT = "development"
+ALLOWED_ORIGINS = "http://localhost:5173,http://127.0.0.1:5173,http://localhost:8788"
+POCKET_NODE_URL = "http://127.0.0.1:8787"
+
+# Production — set secrets before first deploy (see docs/DEPLOYMENT.md):
+#   wrangler secret put GOOGLE_CLIENT_ID --env production
+#   wrangler secret put POCKET_NODE_URL --env production   # Cloudflare Tunnel URL
+#   wrangler secret put ALLOWED_ORIGINS --env production   # https://your-app.pages.dev
 [env.production]
 vars = { ENVIRONMENT = "production" }
 
+# PR previews / staging (optional workers.dev hostname)
 [env.staging]
 vars = { ENVIRONMENT = "staging" }
