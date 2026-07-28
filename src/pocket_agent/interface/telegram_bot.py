@@ -29,6 +29,9 @@ class TelegramBot:
         app.add_handler(CommandHandler("read", self._on_read))
         app.add_handler(CommandHandler("pdf", self._on_pdf))
         app.add_handler(CommandHandler("excel", self._on_excel))
+        app.add_handler(CommandHandler("edit_excel", self._on_edit_excel))
+        app.add_handler(CommandHandler("edit_word", self._on_edit_word))
+        app.add_handler(CommandHandler("edit_pdf", self._on_edit_pdf))
         app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self._on_message))
         self._app = app
         return app
@@ -64,6 +67,10 @@ class TelegramBot:
             "/read <path> — read TXT, DOCX, PDF, XLSX summary\n"
             "/pdf <path> — extract PDF text\n"
             "/excel <path> — analyze Excel workbook\n"
+            "/edit_excel <path> <sheet> <cell>=<value> — safe cell edit\n"
+            "/edit_word <path> append <text> — append paragraph\n"
+            "/edit_word <path> replace_last <text> — replace last paragraph\n"
+            "/edit_pdf <path> add_page <text> — add PDF page with text\n"
             "/help — this message\n\n"
             "Or send any message for LLM assistance."
         )
@@ -148,6 +155,45 @@ class TelegramBot:
             f"/excel {path}",
             chat_id=update.effective_chat.id,
         )
+        await update.message.reply_text(reply)
+
+    async def _on_edit_excel(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        if not update.effective_user or not update.message:
+            return
+        if not self._is_allowed(update.effective_user.id):
+            await update.message.reply_text("Access denied.")
+            return
+        if len(context.args) < 3:
+            await update.message.reply_text("Usage: /edit_excel <path> <sheet> <cell>=<value>")
+            return
+        text = f"/edit_excel {' '.join(context.args)}"
+        reply = await self._agent.handle_message(text, chat_id=update.effective_chat.id)
+        await update.message.reply_text(reply)
+
+    async def _on_edit_word(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        if not update.effective_user or not update.message:
+            return
+        if not self._is_allowed(update.effective_user.id):
+            await update.message.reply_text("Access denied.")
+            return
+        if len(context.args) < 3:
+            await update.message.reply_text("Usage: /edit_word <path> append|replace_last <text>")
+            return
+        text = f"/edit_word {' '.join(context.args)}"
+        reply = await self._agent.handle_message(text, chat_id=update.effective_chat.id)
+        await update.message.reply_text(reply)
+
+    async def _on_edit_pdf(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+        if not update.effective_user or not update.message:
+            return
+        if not self._is_allowed(update.effective_user.id):
+            await update.message.reply_text("Access denied.")
+            return
+        if len(context.args) < 3:
+            await update.message.reply_text("Usage: /edit_pdf <path> add_page <text>")
+            return
+        text = f"/edit_pdf {' '.join(context.args)}"
+        reply = await self._agent.handle_message(text, chat_id=update.effective_chat.id)
         await update.message.reply_text(reply)
 
     async def _on_message(self, update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:

@@ -1,8 +1,10 @@
 from pocket_agent.config.models import PathsConfig
 from pocket_agent.tools.communication.telegram import send_telegram
-from pocket_agent.tools.files.excel import analyze_excel
+from pocket_agent.tools.files.docx_edit import modify_docx
+from pocket_agent.tools.files.excel import analyze_excel, modify_excel
 from pocket_agent.tools.files.nas import index_files, list_nas_files, search_files
 from pocket_agent.tools.files.pdf import extract_pdf_text
+from pocket_agent.tools.files.pdf_edit import modify_pdf
 from pocket_agent.tools.files.read import read_file
 from pocket_agent.tools.registry import ToolRegistry
 
@@ -39,6 +41,21 @@ def build_tool_registry(paths: PathsConfig, bot=None) -> ToolRegistry:
     async def _analyze_excel(file_path: str):
         return await analyze_excel(paths, file_path=file_path)
 
+    async def _modify_excel(file_path: str, sheet_name: str, cell: str, value: str):
+        return await modify_excel(
+            paths,
+            file_path=file_path,
+            sheet_name=sheet_name,
+            cell=cell,
+            value=value,
+        )
+
+    async def _modify_pdf(file_path: str, text: str, action: str = "add_page"):
+        return await modify_pdf(paths, file_path=file_path, text=text, action=action)
+
+    async def _modify_docx(file_path: str, text: str, action: str = "append"):
+        return await modify_docx(paths, file_path=file_path, text=text, action=action)
+
     async def _send_telegram(chat_id: int, text: str):
         if bot is None:
             from pocket_agent.tools.base import ToolResult
@@ -52,6 +69,9 @@ def build_tool_registry(paths: PathsConfig, bot=None) -> ToolRegistry:
     registry.register("read_file", _read)
     registry.register("extract_pdf_text", _extract_pdf)
     registry.register("analyze_excel", _analyze_excel)
+    registry.register("modify_excel", _modify_excel)
+    registry.register("modify_pdf", _modify_pdf)
+    registry.register("modify_docx", _modify_docx)
     registry.register("send_telegram", _send_telegram)
 
     return registry

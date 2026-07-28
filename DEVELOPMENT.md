@@ -10,6 +10,9 @@
 | `/read <path>` | Read TXT, DOCX, PDF, or XLSX summary |
 | `/pdf <path>` | Extract PDF text |
 | `/excel <path>` | Analyze Excel workbook structure |
+| `/edit_excel <path> <sheet> <cell>=<value>` | Safe single-cell Excel edit |
+| `/edit_word <path> append\|replace_last <text>` | Safe Word paragraph edit |
+| `/edit_pdf <path> add_page <text>` | Add PDF page with text |
 | Any text | LLM response (Gemini when configured) |
 
 ## Testing
@@ -31,4 +34,6 @@ ruff check src tests
 
 **Phase 2** — File intelligence: SQLite index, indexed search, PDF extraction, DOCX/TXT read, Excel analysis.
 
-Next (Phase 3): safe file editing with backups and validation.
+**Phase 3** — Safe editing: backup/working/validate/replace pipeline for Excel, Word, and PDF.
+
+Next (Phase 4): personal memory, vector search, knowledge base.

@@ -42,8 +42,8 @@ class AgentCore:
         prompt = (
             f"User message: {user_text}\n\n"
             f"Available skills:\n{skills_summary}\n\n"
-            "Commands: /index, /nas, /search <query>, /read <path>, "
-            "/pdf <path>, /excel <path>, /help"
+            "Commands: /index, /nas, /search, /read, /pdf, /excel, "
+            "/edit_excel, /edit_word, /edit_pdf, /help"
         )
 
         response = await provider.complete(prompt, system=self._system_prompt)
@@ -84,6 +84,46 @@ class AgentCore:
             match = re.match(pattern, stripped, re.IGNORECASE)
             if match:
                 return {"name": tool_name, arg_name: match.group(1).strip()}
+
+        edit_excel = re.match(
+            r"^/edit_excel\s+(.+?)\s+([^\s]+)\s+([A-Za-z]+\d+)=(.+)$",
+            stripped,
+            re.IGNORECASE,
+        )
+        if edit_excel:
+            return {
+                "name": "modify_excel",
+                "file_path": edit_excel.group(1).strip(),
+                "sheet_name": edit_excel.group(2).strip(),
+                "cell": edit_excel.group(3).strip().upper(),
+                "value": edit_excel.group(4).strip(),
+            }
+
+        edit_word = re.match(
+            r"^/edit_word\s+(.+?)\s+(append|replace_last)\s+(.+)$",
+            stripped,
+            re.IGNORECASE | re.DOTALL,
+        )
+        if edit_word:
+            return {
+                "name": "modify_docx",
+                "file_path": edit_word.group(1).strip(),
+                "action": edit_word.group(2).strip().lower(),
+                "text": edit_word.group(3).strip(),
+            }
+
+        edit_pdf = re.match(
+            r"^/edit_pdf\s+(.+?)\s+add_page\s+(.+)$",
+            stripped,
+            re.IGNORECASE | re.DOTALL,
+        )
+        if edit_pdf:
+            return {
+                "name": "modify_pdf",
+                "file_path": edit_pdf.group(1).strip(),
+                "action": "add_page",
+                "text": edit_pdf.group(2).strip(),
+            }
 
         return None
 
@@ -134,6 +174,19 @@ class AgentCore:
                 lines.append(f"\n## {sheet['name']} ({sheet['rows']} x {sheet['columns']})")
                 for row in sheet.get("sample", [])[:3]:
                     lines.append(" | ".join(row))
+            return "\n".join(lines)
+
+        if tool_name in {"modify_excel", "modify_pdf", "modify_docx"}:
+            lines = [
+                f"Updated: {data.get('path')}",
+                f"Backup: {data.get('backup_path')}",
+            ]
+            if tool_name == "modify_excel":
+                lines.append(f"Cell {data.get('sheet')}!{data.get('cell')} = {data.get('value')}")
+            elif tool_name == "modify_docx":
+                lines.append(f"Action: {data.get('action')}")
+            elif tool_name == "modify_pdf":
+                lines.append(f"Action: {data.get('action')} (+{data.get('text_length')} chars)")
             return "\n".join(lines)
 
         return str(data)

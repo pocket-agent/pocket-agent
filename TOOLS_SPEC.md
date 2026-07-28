@@ -75,14 +75,13 @@ Reads workbook structure and sample rows.
 
 ## modify_excel()
 
-
-Applies controlled changes.
+Applies a single cell change via safe-edit pipeline (backup → working copy → validate → replace).
 
 
 Requirements:
 
 - Backup first
-- Validate output
+- Validate output (openpyxl structure check)
 
 
 # PDF Tools
@@ -90,10 +89,20 @@ Requirements:
 
 ## extract_pdf_text()
 
-Extracts text from PDF files (PyMuPDF). Implemented in Phase 2.
+Extracts text from PDF files (PyMuPDF).
 
 
 ## modify_pdf()
+
+Adds a new page with text (`add_page` action). Safe-edit pipeline with PDF structure validation.
+
+
+# Word Tools
+
+
+## modify_docx()
+
+Appends or replaces last paragraph. Safe-edit pipeline with docx validation.
 
 
 # Communication Tools
