@@ -1,0 +1,18 @@
+default_provider: gemini
+
+routing:
+  classification: ollama
+  reasoning: gemini
+  coding: claude
+  default: gemini
+
+providers:
+  gemini:
+    model: gemini-2.0-flash
+  ollama:
+    base_url: http://localhost:11434
+    model: llama3.2
+  openai:
+    model: gpt-4o
+  claude:
+    model: claude-sonnet-4-20250514

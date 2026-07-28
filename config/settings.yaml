@@ -1,0 +1,8 @@
+agent:
+  name: pocket-agent
+
+telegram:
+  poll_interval: 1.0
+
+logging:
+  level: INFO

@@ -6,7 +6,20 @@ node_modules/
 .pnp
 .pnp.js
 
-# Build output
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+htmlcov/
+*.egg-info/
+.eggs/
 dist/
 build/
 .output/

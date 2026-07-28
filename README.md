@@ -36,6 +36,17 @@ The system combines:
 The user owns the infrastructure, data, and workflows.
 
 
+## Development
+
+Phase 1 foundation is scaffolded. See [DEVELOPMENT.md](DEVELOPMENT.md) for setup (Python 3.12+, Telegram, Gemini).
+
+```bash
+cp .env.example .env
+pip install -e ".[dev]"
+pocket-agent
+```
+
+
 # Main Architecture
 
 ```
