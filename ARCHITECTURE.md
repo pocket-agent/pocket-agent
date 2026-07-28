@@ -3,8 +3,32 @@
 
 # Overview
 
+Pocket Agent is a personal AI system with six internal layers plus a **client/API edge** (web, worker, desktop, CLI) that routes user actions to a **Pocket Node** Python agent. External LLM APIs are never called from the browser.
 
-Pocket Agent consists of six layers.
+Hosted and local clients never call external LLM APIs directly. They authenticate with **Google OAuth** (single Google Cloud client ID shared by web and Tauri) and send actions to the **API worker**, which proxies to the **Pocket Node** Python agent.
+
+| Component | Path | Deploy |
+|-----------|------|--------|
+| Web UI | `apps/web` | Cloudflare Pages |
+| API gateway | `apps/api` | Cloudflare Worker |
+| Desktop | `apps/desktop` | Tauri install |
+| CLI | `apps/cli` | Desktop install (future) |
+| Agent | `src/pocket_agent` | Pocket Node (`pocket-agent serve`) |
+
+```
+Browser / Tauri  →  Google OAuth (client ID in app)
+       ↓
+  apps/api (Worker)  →  verifies Google token
+       ↓
+  Pocket Node agent  →  LLM keys, tools, NAS, memory
+       ↑
+  cloudflared tunnel (production, optional)
+```
+
+See [docs/APPS_ARCHITECTURE.md](docs/APPS_ARCHITECTURE.md). Clone app repos: `pocket-agent init`.
+
+
+## Internal layers
 
 
 ## Interface Layer
@@ -19,8 +43,9 @@ Current:
 
 Planned (monorepo):
 
-- Web dashboard — `apps/web` (React, Cloudflare Pages or local static serve on Pocket Node)
-- Desktop app — `apps/desktop` (Tauri, embeds same UI as web)
+- Web dashboard — `apps/web` (React, Cloudflare Pages, Google OAuth)
+- API gateway — `apps/api` (Cloudflare Worker → Pocket Node)
+- Desktop app — `apps/desktop` (Tauri, same Google OAuth client as web)
 
 
 Future:

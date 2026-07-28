@@ -38,39 +38,56 @@
 
 # Phase 5 - Clients (monorepo)
 
-Monorepo layout: `apps/web` (hosted) + `apps/desktop` (Tauri) + `src/pocket_agent` (agent core).
+Layout: `apps/web` + `apps/api` + `apps/desktop` + `apps/cli` + `src/pocket_agent`.
 
 
 ## 5.1 Monorepo scaffold
 
 - [x] `apps/` layout and documentation
-- [x] `apps/web/` — template loaded and initialized (`pocket-agent-web`)
+- [x] `pocket-agent init` — clone `pocket-agent-web-app` and `pocket-agent-api-app`
+- [x] `apps/api/` scaffold for API worker template
+- [x] `apps/cli/` placeholder for future CLI repo
+- [x] [docs/APPS_ARCHITECTURE.md](docs/APPS_ARCHITECTURE.md) — Google OAuth, Worker → Pocket Node, tunnel
 - [x] `apps/desktop/` — empty scaffold for Tauri app
 
 
 ## 5.2 Web app (`apps/web`)
 
-- [x] Copy Cloudflare + React + Google OAuth template into `apps/web/`
-- [x] Run `init-from-template` (package `pocket-agent-web`, monorepo paths)
-- [x] Agent HTTP API (`GET /health`, `/status`, `/me`, `POST /chat`)
-- [x] Google OAuth (Supabase + redirect URL matrix in `docs/DEPLOYMENT.md`)
-- [x] Cloudflare Pages deployment workflow (`.github/workflows/web-pages-deploy.yml`)
-- [x] Local static serve from Pocket Node (`pocket-agent serve`)
+- [x] Initial React template in monorepo (legacy Supabase flow)
+- [ ] Migrate to `pocket-agent-web-app` — direct Google OAuth, no Supabase
+- [ ] Cloudflare Pages deploy workflow (update for new template)
+- [x] Local dev against Pocket Node (`pocket-agent serve`)
 
 
-## 5.3 Desktop app (`apps/desktop`)
+## 5.3 API worker (`apps/api`)
+
+- [ ] Load `pocket-agent-api-app` template
+- [ ] Google token verification (shared Google Cloud client with web/Tauri)
+- [ ] Proxy `/health`, `/me`, `/chat` to Pocket Node
+- [ ] Cloudflare Worker deploy workflow
+- [ ] Pocket Node URL config (local + Cloudflare Tunnel)
+
+
+## 5.4 Desktop app (`apps/desktop`)
 
 - [ ] Tauri scaffold (architecture copied from `apps/web`)
+- [ ] Same Google OAuth client ID as web
 - [ ] macOS / Windows / Linux builds
-- [ ] Embedded local web UI + localhost agent connection
+- [ ] Embedded local web UI + API worker / localhost agent
 - [ ] Optional: bundle Python agent in desktop installer
 
 
-## 5.4 Shared client features
+## 5.5 CLI (`apps/cli`)
+
+- [ ] Enable in `config/apps.yaml` when `pocket-agent-cli` is ready
+- [ ] Desktop install only (no Cloudflare deploy)
+
+
+## 5.6 Shared client features
 
 - [ ] Monitoring views (agent health, logs, queue)
-- [ ] Shared UI components between web and desktop (as feasible)
-- [ ] Environment config: local vs Cloudflare vs Tauri
+- [ ] Shared UI between web and desktop (as feasible)
+- [ ] Environment config: local vs Cloudflare vs Tauri vs CLI
 
 
 # Phase 6 - Advanced Automation

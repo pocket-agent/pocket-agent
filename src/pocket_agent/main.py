@@ -53,31 +53,48 @@ async def run_both(runtime: AgentRuntime) -> None:
             pass
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser(prog="pocket-agent")
-    parser.add_argument(
-        "command",
-        nargs="?",
-        default="telegram",
-        choices=["telegram", "serve", "run"],
-        help="telegram: bot only; serve: HTTP API + static UI; run: both",
-    )
-    args = parser.parse_args()
-
+def run_agent_command(command: str) -> None:
     runtime = build_runtime()
     configure_logging(runtime.settings.env.log_level)
     logger = logging.getLogger("pocket_agent")
 
-    if args.command == "telegram":
+    if command == "telegram":
         asyncio.run(run_telegram(runtime))
-    elif args.command == "serve":
+    elif command == "serve":
         asyncio.run(run_serve(runtime))
-    elif args.command == "run":
+    elif command == "run":
         if runtime.settings.env.telegram_bot_token:
             asyncio.run(run_both(runtime))
         else:
             logger.warning("TELEGRAM_BOT_TOKEN not set — starting HTTP only")
             asyncio.run(run_serve(runtime))
+
+
+def main() -> None:
+    if len(sys.argv) > 1 and sys.argv[1] == "init":
+        from pocket_agent.cli.init_apps import main as init_main
+
+        sys.exit(init_main(sys.argv[2:]))
+        return
+
+    parser = argparse.ArgumentParser(prog="pocket-agent")
+    parser.add_argument(
+        "command",
+        nargs="?",
+        default="telegram",
+        choices=["telegram", "serve", "run", "init"],
+        help="telegram: bot only; serve: HTTP API; run: both; init: clone app repos",
+    )
+    args = parser.parse_args()
+
+    if args.command == "init":
+        from pocket_agent.cli.init_apps import run_init
+
+        logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
+        sys.exit(run_init())
+        return
+
+    run_agent_command(args.command)
 
 
 if __name__ == "__main__":

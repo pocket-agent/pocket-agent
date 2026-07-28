@@ -40,15 +40,15 @@ The user owns the infrastructure, data, and workflows.
 
 Phase 1 foundation is scaffolded. See [DEVELOPMENT.md](DEVELOPMENT.md) for setup (Python 3.12+, Telegram, Gemini).
 
-Monorepo clients: [apps/web/](apps/web/) · [apps/desktop/](apps/desktop/) (Tauri, later)
-
-Web deploy: [apps/web/docs/DEPLOYMENT.md](apps/web/docs/DEPLOYMENT.md)
+Monorepo clients: [apps/](apps/) — `web` (Pages), `api` (Worker), `desktop` (Tauri), `cli` (future).
 
 ```bash
-cp .env.example .env
 pip install -e ".[dev]"
-pocket-agent
+pocket-agent init    # clone pocket-agent-web-app + pocket-agent-api-app
+pocket-agent serve   # Pocket Node HTTP API
 ```
+
+Architecture: [docs/APPS_ARCHITECTURE.md](docs/APPS_ARCHITECTURE.md)
 
 
 # Main Architecture

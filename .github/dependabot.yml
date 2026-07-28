@@ -23,3 +23,10 @@ updates:
     commit-message:
       prefix: "deps"
       include: "scope"
+  - package-ecosystem: "npm"
+    directory: "/apps/api"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "deps"
+      include: "scope"

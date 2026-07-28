@@ -5,69 +5,80 @@ Setup, monorepo layout, testing, and deployment.
 ## Requirements
 
 - Python 3.12+ (agent core)
-- Node.js 20+ (when `apps/web` and `apps/desktop` are populated)
+- Node.js 20+ / Bun (app packages in `apps/`)
+- Google Cloud OAuth client (web + desktop — shared client ID)
 - Telegram bot token, Gemini API key (see `.env.example`)
 - NAS mount or local folder for development
+- Cloudflare account (Pages + Worker deploy)
+- Optional: `cloudflared` for exposing Pocket Node to hosted web
 
 ## Monorepo layout
 
 ```
 pocket-agent/
 ├── apps/
-│   ├── web/          # React + Cloudflare + Google OAuth (template → you add)
-│   └── desktop/      # Tauri app (scaffold from web, later)
-├── src/pocket_agent/ # Python agent (Telegram, tools, memory)
+│   ├── web/          # pocket-agent-web-app → Cloudflare Pages
+│   ├── api/          # pocket-agent-api-app → Cloudflare Worker
+│   ├── desktop/      # Tauri (desktop install)
+│   └── cli/          # pocket-agent-cli (future, desktop install)
+├── src/pocket_agent/ # Python agent (Pocket Node)
 ├── agent/            # Runtime skills & prompts
-├── config/           # YAML config
-├── data/             # Runtime logs, cache, working files
-└── tests/            # pytest
+├── config/           # YAML config (includes apps.yaml)
+├── docs/             # APPS_ARCHITECTURE.md
+└── tests/
 ```
 
-See [apps/README.md](apps/README.md) for client app details.
+See [apps/README.md](apps/README.md) and [docs/APPS_ARCHITECTURE.md](docs/APPS_ARCHITECTURE.md).
 
-## Agent quick start
+## First-time monorepo setup
 
 ```bash
 cd pocket-agent
 python3.12 -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
-cp .env.example .env   # configure tokens and keys
+cp .env.example .env
+
+# Clone nested app repos (web + api)
+pocket-agent init
+# or: ./scripts/init-apps.sh
+```
+
+Each app under `apps/web` and `apps/api` is its own git repository.
+
+## Agent (Pocket Node)
+
+```bash
 pocket-agent           # Telegram bot (default)
-pocket-agent serve     # HTTP API on :8787 + optional web UI from apps/web/dist
+pocket-agent serve     # HTTP API on :8787 (tools, LLM, memory)
 pocket-agent run       # Telegram + HTTP together
 ```
 
-Set `SUPABASE_JWT_SECRET` in `.env` (from your Supabase project JWT secret) so `/me` and `/chat` accept the web app's Supabase session tokens.
+The Python agent holds LLM API keys and executes tools. Hosted web does not call LLM providers directly — the API worker proxies to this service (local or via Cloudflare Tunnel).
 
-## Web app + local API
+## Local full stack (target)
 
 ```bash
-# Terminal 1 — agent API (build web first for bundled UI)
-cd apps/web && bun install && bun run build
-cd ../../
+# Terminal 1 — Pocket Node
 pocket-agent serve
 
-# Terminal 2 — web dev (Vite proxies API via VITE_API_BASE_URL)
-cd apps/web
-cp .env.example .env.local   # VITE_API_BASE_URL=http://localhost:8787
-bun run dev
+# Terminal 2 — API worker (after apps/api template lands)
+cd apps/api && npm run dev
+
+# Terminal 3 — Web
+cd apps/web && bun install && bun run dev
 ```
 
-See [apps/web/README.md](apps/web/README.md) and [apps/web/MONOREPO.md](apps/web/MONOREPO.md).
+## Deployment
 
-Remove nested git if present: `rm -rf apps/web/.git`
+| Component | Target |
+|-----------|--------|
+| `apps/web` | Cloudflare Pages |
+| `apps/api` | Cloudflare Worker |
+| Agent | Pocket Node + optional `cloudflared tunnel` |
+| `apps/desktop`, `apps/cli` | Desktop install only |
 
-## Web deploy (Cloudflare Pages)
-
-See [apps/web/docs/DEPLOYMENT.md](apps/web/docs/DEPLOYMENT.md). GitHub **secrets**: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID`. **Variables**: `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_API_BASE_URL`.
-
-## Desktop app (later)
-
-```bash
-cd apps/desktop
-# Tauri dev/build after scaffold from apps/web
-```
+Production flow: Pages web → Worker API → tunnel URL → `pocket-agent serve`.
 
 ## Telegram commands
 
@@ -100,14 +111,13 @@ ruff check src tests
 ## Architecture reference
 
 - [ARCHITECTURE.md](ARCHITECTURE.md)
+- [docs/APPS_ARCHITECTURE.md](docs/APPS_ARCHITECTURE.md)
 - [INSTRUCTIONS.md](INSTRUCTIONS.md)
 - [specs/features/](specs/features/)
 - [apps/README.md](apps/README.md)
 
 ## Status
 
-**Phases 1–4** — Agent core complete (see [ROADMAP.md](ROADMAP.md)).
+**Phases 1–4** — Agent core complete.
 
-**Phase 5.2** — Web template, HTTP API, OAuth docs, Cloudflare Pages workflow. **Next:** Tauri desktop scaffold (5.3).
-
-**Phase 5** — Monorepo scaffold ready. Next: copy web template into `apps/web/`, then Tauri scaffold in `apps/desktop/`.
+**Phase 5** — Monorepo restructure: `apps/api`, `pocket-agent init`, Google OAuth + Worker → Pocket Node architecture documented. Next: load web/api templates and migrate off Supabase.
