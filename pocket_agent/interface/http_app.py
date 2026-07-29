@@ -14,6 +14,11 @@ from starlette.staticfiles import StaticFiles
 from pocket_agent.interface.auth import AuthError, extract_bearer_token, verify_google_id_token
 from pocket_agent.runtime.context import AgentRuntime
 
+try:
+    from pocket_agent_sdk import SERVICE_IDS
+except ImportError:
+    SERVICE_IDS = {"pocket_node": "pocket-agent", "api_worker": "pocket-agent-api"}
+
 logger = logging.getLogger(__name__)
 
 
@@ -60,7 +65,7 @@ async def health(_: Request) -> JSONResponse:
         {
             "status": "ok",
             "timestamp": datetime.now(UTC).isoformat(),
-            "service": "pocket-agent",
+            "service": SERVICE_IDS["pocket_node"],
         }
     )
 

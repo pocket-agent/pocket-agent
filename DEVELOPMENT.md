@@ -22,6 +22,7 @@ pocket-agent/
 
 ```bash
 python3.12 -m venv .venv && source .venv/bin/activate
+pip install -e ../pocket-agent-sdk/python   # shared contracts
 pip install -e ".[dev]"
 ```
 

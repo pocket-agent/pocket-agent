@@ -7,6 +7,7 @@ from pathlib import Path
 
 import yaml
 
+from pocket_agent_sdk import CONNECTION_PROFILES
 from pocket_agent.workspace.paths import find_workspace_root
 
 logger = logging.getLogger(__name__)
@@ -76,7 +77,7 @@ def main(argv: list[str] | None = None) -> int:
     )
     parser.add_argument(
         "--profile",
-        choices=["all-local", "hosted-ui-home-agent", "cloud-only"],
+        choices=list(CONNECTION_PROFILES),
         default=None,
         help="Override profile",
     )
