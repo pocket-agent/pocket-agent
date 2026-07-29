@@ -5,8 +5,8 @@ Thanks for contributing to **pocket-agent**.
 ## Setup
 
 ```bash
-git clone https://github.com/pocket-agent/pocket-agent.git
-cd pocket-agent
+git clone https://github.com/pocket-agent/pocket-agent.git core
+cd core
 ```
 
 ## Pull requests

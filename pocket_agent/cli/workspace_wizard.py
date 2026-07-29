@@ -17,6 +17,7 @@ from starlette.staticfiles import StaticFiles
 
 from pocket_agent.cli.init_modules import install_module, load_modules_config
 from pocket_agent.cli.setup_wizard import run_setup
+from pocket_agent.cli.workspace_bootstrap import check_prerequisites, run_bootstrap
 from pocket_agent.workspace.paths import find_workspace_root
 
 logger = logging.getLogger(__name__)
@@ -88,6 +89,9 @@ async def api_setup_post(request: Request) -> JSONResponse:
     if body.get("google_oauth", {}).get("client_id"):
         overrides["google_oauth"] = body["google_oauth"]
 
+    if body.get("ui", {}).get("primary"):
+        overrides["ui"] = body["ui"]
+
     code = run_setup(
         workspace_root=workspace,
         force=True,
@@ -129,6 +133,26 @@ async def api_install_post(request: Request) -> JSONResponse:
     return JSONResponse({"results": results, "modules": _module_status(workspace)})
 
 
+async def api_prereqs(request: Request) -> JSONResponse:
+    workspace = find_workspace_root()
+    return JSONResponse(check_prerequisites(workspace))
+
+
+async def api_bootstrap_post(request: Request) -> JSONResponse:
+    body = await request.json()
+    workspace = find_workspace_root()
+    use_desktop = bool(body.get("use_desktop", False))
+    google = body.get("google_oauth") or {}
+    result = run_bootstrap(
+        workspace_root=workspace,
+        google_client_id=google.get("client_id"),
+        gemini_api_key=body.get("gemini_api_key"),
+        use_desktop=use_desktop,
+        generate_icons=use_desktop,
+    )
+    return JSONResponse(result)
+
+
 def build_wizard_app(workspace: Path) -> Starlette:
     dist = _wizard_dist(workspace)
     routes: list = [
@@ -136,6 +160,8 @@ def build_wizard_app(workspace: Path) -> Starlette:
         Route("/api/setup", api_setup_get, methods=["GET"]),
         Route("/api/setup", api_setup_post, methods=["POST"]),
         Route("/api/install", api_install_post, methods=["POST"]),
+        Route("/api/prereqs", api_prereqs),
+        Route("/api/bootstrap", api_bootstrap_post, methods=["POST"]),
     ]
 
     if dist.is_dir():

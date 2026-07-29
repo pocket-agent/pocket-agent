@@ -83,6 +83,12 @@ def main() -> None:
         sys.exit(setup_main(sys.argv[2:]))
         return
 
+    if len(sys.argv) > 1 and sys.argv[1] == "bootstrap":
+        from pocket_agent.cli.bootstrap_cmd import main as bootstrap_main
+
+        sys.exit(bootstrap_main(sys.argv[2:]))
+        return
+
     if len(sys.argv) > 1 and sys.argv[1] == "wizard":
         from pocket_agent.cli.workspace_wizard import main as wizard_main
 
@@ -94,8 +100,8 @@ def main() -> None:
         "command",
         nargs="?",
         default="telegram",
-        choices=["telegram", "serve", "run", "init", "setup", "wizard"],
-        help="telegram|serve|run|init|setup|wizard",
+        choices=["telegram", "serve", "run", "init", "setup", "wizard", "bootstrap"],
+        help="telegram|serve|run|init|setup|wizard|bootstrap",
     )
     args = parser.parse_args()
 
@@ -118,6 +124,12 @@ def main() -> None:
 
         logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
         sys.exit(run_wizard_server())
+        return
+
+    if args.command == "bootstrap":
+        from pocket_agent.cli.bootstrap_cmd import main as bootstrap_main
+
+        sys.exit(bootstrap_main())
         return
 
     run_agent_command(args.command)

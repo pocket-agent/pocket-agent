@@ -1,43 +1,23 @@
-# Agent instructions — pocket-agent (Python core)
+# Agent instructions — core
 
-**Scope:** this git repository only. Global workspace rules: [../INSTRUCTIONS.md](../INSTRUCTIONS.md).
+**Scope:** this git repository (`pocket-agent/` locally, `pocket-agent` on GitHub).
 
-## This repo contains
+Global workspace rules: [../INSTRUCTIONS.md](../INSTRUCTIONS.md) (read when developing inside the org folder).
 
-- `src/pocket_agent/` — Python package
-- `agent/` — runtime prompts, skills, memory data
-- `config/` — `llm.yaml`, `settings.yaml`, `paths.yaml`
-- `tests/`
-- CLI: `pocket-agent serve`, `telegram`, `init`, `setup`, `wizard`
+## Contains
 
-## Key docs (this repo)
+- `pocket_agent/` — Python package (`pip install -e`)
+- `agent/` — runtime prompts, skills, memory
+- `config/` — agent YAML (`llm.yaml`, `settings.yaml`)
+- CLI entry: `pocket-agent` (serve, init, wizard, bootstrap)
 
-| File | Purpose |
-|------|---------|
-| [AGENT_PROTOCOL.md](AGENT_PROTOCOL.md) | How the agent reasons |
-| [TOOLS_SPEC.md](TOOLS_SPEC.md) | Tool contracts |
-| [SKILLS.md](SKILLS.md) | Runtime skill system |
-| [DEVELOPMENT.md](DEVELOPMENT.md) | Dev workflow |
+## Do not duplicate here
 
-## Cross-repo docs (workspace)
+- React UI → `../pocket-agent-web-app/`
+- Worker → `../pocket-agent-api-app/`
+- Global OKF specs → `../specs/`
+- Module registry → `../config/modules.yaml`
 
-| Topic | Path |
-|-------|------|
-| OKF specs | [../specs/](../specs/) |
-| Architecture | [../docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md) |
-| Apps flow | [../docs/APPS_ARCHITECTURE.md](../docs/APPS_ARCHITECTURE.md) |
-| Developer skills | [../.agents/skills/](../.agents/skills/) |
+## Standalone clone
 
-## Do not add here
-
-- React UI → `../pocket-agent-web/`
-- Cloudflare Worker → `../pocket-agent-api/`
-- Workspace module registry → `../config/modules.yaml`
-
-## Setup
-
-```bash
-python3.12 -m venv .venv && source .venv/bin/activate
-pip install -e ".[dev]"
-pocket-agent wizard   # uses ../config/ and ../wizard/
-```
+If only this repo is cloned, you still have agent docs here but no workspace wizard until sibling folders exist.

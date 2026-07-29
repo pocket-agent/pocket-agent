@@ -34,13 +34,10 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/pocket_agent"]
+packages = ["pocket_agent"]
 
 [tool.hatch.build.targets.sdist]
-packages = ["src/pocket_agent"]
-
-[tool.hatch.build]
-dev-mode-dirs = ["src"]
+packages = ["pocket_agent"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

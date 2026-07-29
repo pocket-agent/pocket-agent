@@ -1,32 +1,34 @@
-# pocket-agent (Python core)
+# pocket-agent (Pocket Node)
 
-Private, self-hosted personal AI assistant — **Pocket Node**.
+Python agent — LLM routing, tools, memory, Telegram, `pocket-agent serve`.
 
-Git repo: `github.com/pocket-agent/pocket-agent`. Workspace context: [../README.md](../README.md).
+**GitHub:** [pocket-agent/pocket-agent](https://github.com/pocket-agent/pocket-agent)
 
-## Quick start
+When developed inside the org workspace, global docs live at the parent folder: [../README.md](../README.md), [../INSTRUCTIONS.md](../INSTRUCTIONS.md), [../ROADMAP.md](../ROADMAP.md).
+
+## Quick start (standalone or workspace)
 
 ```bash
 python3.12 -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
-pocket-agent wizard    # workspace wizard — ../config/, ../wizard/
 pocket-agent serve     # :8787
 ```
 
-## Commands
+In a full workspace clone, run `pocket-agent wizard` from here (uses `../wizard/` and `../config/`).
+
+## CLI commands
 
 | Command | Description |
 |---------|-------------|
-| `serve` | HTTP API (Pocket Node) |
+| `serve` | Pocket Node HTTP API |
 | `telegram` | Telegram bot |
-| `init` | Install sibling modules (latest GitHub releases) |
+| `init` | Install sibling modules from releases |
 | `setup` | Write `../config/user-setup.yaml` |
-| `wizard` | Liquid-glass setup UI |
+| `wizard` | Workspace setup UI |
+| `bootstrap` | Env file templates |
 
-## Docs in this repo
+## Repo docs
 
 [AGENT_PROTOCOL.md](AGENT_PROTOCOL.md) · [TOOLS_SPEC.md](TOOLS_SPEC.md) · [DEVELOPMENT.md](DEVELOPMENT.md) · [INSTRUCTIONS.md](INSTRUCTIONS.md)
 
-## Global workspace docs
-
-[../INSTRUCTIONS.md](../INSTRUCTIONS.md) · [../specs/](../specs/) · [../.agents/skills/](../.agents/skills/)
+Standalone clone: [ROADMAP.md](ROADMAP.md). In workspace, see [../ROADMAP.md](../ROADMAP.md).

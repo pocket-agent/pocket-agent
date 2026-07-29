@@ -11,7 +11,7 @@ http:
   host: 0.0.0.0
   port: 8787
   serve_static: true
-  static_dir: ../pocket-agent-web/dist
+  static_dir: ../pocket-agent-web-app/dist
   allowed_origins:
     - http://localhost:5173
     - http://127.0.0.1:5173

@@ -1,23 +1,21 @@
-# Development
+# Development — pocket-agent
 
-This is the **pocket-agent** Python repository (`github.com/pocket-agent/pocket-agent`). Workspace layout: [../docs/WORKSPACE_LAYOUT.md](../docs/WORKSPACE_LAYOUT.md).
+Python Pocket Node repository. Workspace layout: [../docs/WORKSPACE_LAYOUT.md](../docs/WORKSPACE_LAYOUT.md).
 
 ## Prerequisites
 
 - Python 3.12+
-- Node.js 20+ / Bun (sibling module packages)
-- Optional: Rust (desktop)
+- Sibling modules (web, api) for full stack — installed via `pocket-agent init`
 
-## Workspace layout
+## This repo
 
 ```
-../                          # org workspace (not this git repo)
-├── config/modules.yaml
-├── wizard/
-├── pocket-agent/             # this repo
-├── pocket-agent-web/
-├── pocket-agent-api/
-└── …
+pocket-agent/
+├── pocket_agent/     # Python package
+├── agent/            # runtime skills, prompts, memory data
+├── config/           # llm.yaml, settings.yaml, paths.yaml
+├── tests/
+└── pyproject.toml
 ```
 
 ## Setup
@@ -25,28 +23,28 @@ This is the **pocket-agent** Python repository (`github.com/pocket-agent/pocket-
 ```bash
 python3.12 -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
-pocket-agent wizard    # from workspace root config
 ```
+
+## Workspace commands
+
+From `pocket-agent/` with venv active:
+
+- `pocket-agent wizard` — uses `../config/`, `../wizard/`
+- `pocket-agent init` — installs `pocket-agent-web-app`, etc. as siblings
 
 ## Local stack
 
-From workspace root: `../scripts/dev-stack.sh`
+See `../scripts/dev-desktop.sh` or `../scripts/dev-stack.sh`.
 
 | Service | Directory | Port |
 |---------|-----------|------|
 | Agent (here) | `.` | 8787 |
-| API | `../pocket-agent-api` | 8788 |
-| Web | `../pocket-agent-web` | 5173 |
+| API | `../pocket-agent-api-app` | 8788 |
+| Web | `../pocket-agent-web-app` | 5173 |
 
 ## Tests
 
 ```bash
 pytest
-ruff check src tests
+ruff check pocket_agent tests
 ```
-
-## Docs
-
-- [docs/APPS_ARCHITECTURE.md](docs/APPS_ARCHITECTURE.md)
-- [docs/GOOGLE_OAUTH.md](docs/GOOGLE_OAUTH.md)
-- [ROADMAP.md](ROADMAP.md)

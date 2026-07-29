@@ -10,7 +10,7 @@ AGENT_NESTED = Path("pocket-agent")
 
 
 def find_agent_root(start: Path | None = None) -> Path:
-    """Directory containing pyproject.toml and src/pocket_agent."""
+    """Directory containing pyproject.toml and pocket_agent package."""
     start = start or Path.cwd()
     for path in [start, *start.parents]:
         if _is_agent_root(path):
@@ -36,4 +36,4 @@ def find_workspace_root(start: Path | None = None) -> Path:
 
 
 def _is_agent_root(path: Path) -> bool:
-    return (path / "pyproject.toml").is_file() and (path / "src" / "pocket_agent").is_dir()
+    return (path / "pyproject.toml").is_file() and (path / "pocket_agent").is_dir()
