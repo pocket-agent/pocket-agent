@@ -1,15 +1,15 @@
 # pocket-agent (Python core)
 
-Private, self-hosted personal AI assistant — Pocket Node.
+Private, self-hosted personal AI assistant — **Pocket Node**.
 
-Part of the Pocket Agent **workspace** (sibling to `pocket-agent-web`, `pocket-agent-api`, etc.). See the [workspace README](../README.md).
+Git repo: `github.com/pocket-agent/pocket-agent`. Workspace context: [../README.md](../README.md).
 
 ## Quick start
 
 ```bash
 python3.12 -m venv .venv && source .venv/bin/activate
 pip install -e ".[dev]"
-pocket-agent wizard    # or: pocket-agent setup && pocket-agent init
+pocket-agent wizard    # workspace wizard — ../config/, ../wizard/
 pocket-agent serve     # :8787
 ```
 
@@ -17,8 +17,16 @@ pocket-agent serve     # :8787
 
 | Command | Description |
 |---------|-------------|
-| `pocket-agent serve` | HTTP API (Pocket Node) |
-| `pocket-agent telegram` | Telegram bot |
-| `pocket-agent init` | Install modules from latest GitHub releases |
-| `pocket-agent setup` | Write workspace `config/user-setup.yaml` |
-| `pocket-agent wizard` | Open liquid-glass setup UI |
+| `serve` | HTTP API (Pocket Node) |
+| `telegram` | Telegram bot |
+| `init` | Install sibling modules (latest GitHub releases) |
+| `setup` | Write `../config/user-setup.yaml` |
+| `wizard` | Liquid-glass setup UI |
+
+## Docs in this repo
+
+[AGENT_PROTOCOL.md](AGENT_PROTOCOL.md) · [TOOLS_SPEC.md](TOOLS_SPEC.md) · [DEVELOPMENT.md](DEVELOPMENT.md) · [INSTRUCTIONS.md](INSTRUCTIONS.md)
+
+## Global workspace docs
+
+[../INSTRUCTIONS.md](../INSTRUCTIONS.md) · [../specs/](../specs/) · [../.agents/skills/](../.agents/skills/)

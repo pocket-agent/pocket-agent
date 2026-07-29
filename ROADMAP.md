@@ -38,45 +38,45 @@
 
 # Phase 5 - Clients (monorepo)
 
-Layout: `apps/web` + `apps/api` + `apps/desktop` + `apps/cli` + `src/pocket_agent`.
+Layout: workspace siblings `pocket-agent-web`, `pocket-agent-api`, `pocket-agent-desktop`, `pocket-agent-cli` + this repo's `src/pocket_agent`.
 
 
 ## 5.1 Monorepo scaffold
 
-- [x] `apps/` layout and documentation
+- [x] Sibling module layout and documentation
 - [x] `pocket-agent init` — clone `pocket-agent-web-app` and `pocket-agent-api-app`
-- [x] `apps/api/` scaffold for API worker template
-- [x] `apps/cli/` placeholder for future CLI repo
+- [x] `pocket-agent-api/` scaffold for API worker template
+- [x] `pocket-agent-cli/` placeholder for future CLI repo
 - [x] [docs/APPS_ARCHITECTURE.md](docs/APPS_ARCHITECTURE.md) — Google OAuth, Worker → Pocket Node, tunnel
-- [x] `apps/desktop/` — empty scaffold for Tauri app
+- [x] `pocket-agent-desktop/` — empty scaffold for Tauri app
 
 
-## 5.2 Web app (`apps/web`)
+## 5.2 Web app (`pocket-agent-web`)
 
 - [x] Direct Google OAuth (`@react-oauth/google`, no Supabase)
 - [x] Cloudflare Pages deploy workflow (Google Client ID env)
 - [x] Local dev against API worker → Pocket Node
 
 
-## 5.3 API worker (`apps/api`) — Hono on Cloudflare Workers
+## 5.3 API worker (`pocket-agent-api`) — Hono on Cloudflare Workers
 
-- [x] Hono template in `apps/api`
+- [x] Hono template in `pocket-agent-api`
 - [x] Google ID token verification (shared Google Cloud client)
 - [x] Proxy `POST /chat` to Pocket Node
 - [x] Cloudflare Worker deploy workflow (`.github/workflows/api-worker-deploy.yml`)
-- [x] Pocket Node tunnel URL via `POCKET_NODE_URL` secret (see `apps/api/docs/DEPLOYMENT.md`)
+- [x] Pocket Node tunnel URL via `POCKET_NODE_URL` secret (see `pocket-agent-api/docs/DEPLOYMENT.md`)
 
 
-## 5.4 Desktop app (`apps/desktop`)
+## 5.4 Desktop app (`pocket-agent-desktop`)
 
-- [x] Tauri scaffold (embeds `apps/web` UI)
+- [x] Tauri scaffold (embeds `pocket-agent-web` UI)
 - [x] Google OAuth docs — [docs/GOOGLE_OAUTH.md](docs/GOOGLE_OAUTH.md) (web + Tauri dev origins)
 - [x] Desktop build CI + icon script (`desktop-build.yml`, `scripts/generate-desktop-icons.sh`)
 - [ ] Embedded local web UI + API worker / localhost agent (dev works via Vite)
 - [ ] Optional: bundle Python agent in desktop installer
 
 
-## 5.5 CLI (`apps/cli`)
+## 5.5 CLI (`pocket-agent-cli`)
 
 - [x] `pocket-agent-cli` template in monorepo
 - [x] Commands: `setup`, `profile`, `status`, `stack`
