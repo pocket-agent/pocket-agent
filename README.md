@@ -14,7 +14,7 @@ pip install -e ".[dev]"
 pocket-agent serve     # :8787
 ```
 
-In a full workspace clone, run `pocket-agent wizard` from here (uses `../wizard/` and `../config/`).
+In a full workspace clone, run `pocket-agent wizard` from here (uses `../pocket-agent-wizard/` and `../config/`).
 
 ## CLI commands
 

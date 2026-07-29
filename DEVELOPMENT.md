@@ -29,7 +29,7 @@ pip install -e ".[dev]"
 
 From `pocket-agent/` with venv active:
 
-- `pocket-agent wizard` — uses `../config/`, `../wizard/`
+- `pocket-agent wizard` — uses `../config/`, `../pocket-agent-wizard/`
 - `pocket-agent init` — installs `pocket-agent-web-app`, etc. as siblings
 
 ## Local stack

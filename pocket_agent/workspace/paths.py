@@ -7,6 +7,9 @@ from pathlib import Path
 MODULES_FILE = Path("config/modules.yaml")
 SETUP_DEFAULTS = Path("config/setup.defaults.yaml")
 AGENT_NESTED = Path("pocket-agent")
+WIZARD_NESTED = Path("pocket-agent-wizard")
+WIZARD_LEGACY = Path("wizard")  # pre-rename workspace layout
+SDK_NESTED = Path("pocket-agent-sdk")
 
 
 def find_agent_root(start: Path | None = None) -> Path:
@@ -37,3 +40,32 @@ def find_workspace_root(start: Path | None = None) -> Path:
 
 def _is_agent_root(path: Path) -> bool:
     return (path / "pyproject.toml").is_file() and (path / "pocket_agent").is_dir()
+
+
+def find_wizard_root(workspace: Path | None = None) -> Path:
+    """Wizard repo folder (pocket-agent-wizard) under the workspace."""
+    root = workspace or find_workspace_root()
+    for rel in (WIZARD_NESTED, WIZARD_LEGACY):
+        candidate = root / rel
+        if (candidate / "package.json").is_file():
+            return candidate
+    return root / WIZARD_NESTED
+
+
+def find_wizard_dist(workspace: Path | None = None) -> Path:
+    """Built wizard static assets (dist/)."""
+    root = workspace or find_workspace_root()
+    for rel in (WIZARD_NESTED, WIZARD_LEGACY):
+        dist = root / rel / "dist"
+        if (dist / "index.html").is_file():
+            return dist
+    return root / WIZARD_NESTED / "dist"
+
+
+def find_sdk_root(workspace: Path | None = None) -> Path:
+    """Shared SDK repo folder (pocket-agent-sdk) under the workspace."""
+    root = workspace or find_workspace_root()
+    candidate = root / SDK_NESTED
+    if (candidate / "package.json").is_file() or (candidate / "python" / "pyproject.toml").is_file():
+        return candidate
+    return candidate

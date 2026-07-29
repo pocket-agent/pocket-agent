@@ -18,7 +18,7 @@ from starlette.staticfiles import StaticFiles
 from pocket_agent.cli.init_modules import install_module, load_modules_config
 from pocket_agent.cli.setup_wizard import run_setup
 from pocket_agent.cli.workspace_bootstrap import check_prerequisites, run_bootstrap
-from pocket_agent.workspace.paths import find_workspace_root
+from pocket_agent.workspace.paths import find_workspace_root, find_wizard_dist
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +26,7 @@ DEFAULT_PORT = 8790
 
 
 def _wizard_dist(workspace: Path) -> Path:
-    return workspace / "wizard" / "dist"
+    return find_wizard_dist(workspace)
 
 
 def _module_status(workspace: Path) -> list[dict]:
@@ -172,7 +172,7 @@ def build_wizard_app(workspace: Path) -> Starlette:
                 "/",
                 lambda request: JSONResponse(
                     {
-                        "message": "Wizard UI not built. Run: cd wizard && bun install && bun run build",
+                        "message": "Wizard UI not built. Run: cd pocket-agent-wizard && bun install && bun run build",
                         "api": ["/api/modules", "/api/setup", "/api/install"],
                     }
                 ),

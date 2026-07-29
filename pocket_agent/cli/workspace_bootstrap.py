@@ -119,7 +119,8 @@ def check_prerequisites(workspace_root: Path | None = None) -> dict:
         "web_node_modules": has_path("pocket-agent-web-app/node_modules"),
         "api_node_modules": has_path("pocket-agent-api-app/node_modules"),
         "desktop_node_modules": has_path("pocket-agent-desktop-app/node_modules"),
-        "wizard_built": has_path("wizard/dist/index.html"),
+        "wizard_built": has_path("pocket-agent-wizard/dist/index.html")
+        or has_path("wizard/dist/index.html"),
         "desktop_icons": has_path("pocket-agent-desktop-app/src-tauri/icons/32x32.png"),
         "modules": {
             "web": has_path("pocket-agent-web-app/package.json"),
