@@ -70,23 +70,26 @@ Layout: `apps/web` + `apps/api` + `apps/desktop` + `apps/cli` + `src/pocket_agen
 ## 5.4 Desktop app (`apps/desktop`)
 
 - [x] Tauri scaffold (embeds `apps/web` UI)
-- [ ] Same Google OAuth client ID — desktop redirect URIs in Google Cloud
-- [ ] macOS / Windows / Linux release builds (icons + CI)
-- [ ] Embedded local web UI + API worker / localhost agent
+- [x] Google OAuth docs — [docs/GOOGLE_OAUTH.md](docs/GOOGLE_OAUTH.md) (web + Tauri dev origins)
+- [x] Desktop build CI + icon script (`desktop-build.yml`, `scripts/generate-desktop-icons.sh`)
+- [ ] Embedded local web UI + API worker / localhost agent (dev works via Vite)
 - [ ] Optional: bundle Python agent in desktop installer
 
 
 ## 5.5 CLI (`apps/cli`)
 
-- [ ] Enable in `config/apps.yaml` when `pocket-agent-cli` is ready
-- [ ] Desktop install only (no Cloudflare deploy)
+- [x] `pocket-agent-cli` template in monorepo
+- [x] Commands: `setup`, `profile`, `status`, `stack`
+- [x] Shares `config/user-setup.yaml` with Python `pocket-agent setup`
+- [ ] Deploy/install packaging (npm global, brew, bundled with desktop)
 
 
 ## 5.6 Shared client features
 
-- [ ] Monitoring views (agent health, logs, queue)
-- [ ] Shared UI between web and desktop (as feasible)
-- [ ] Environment config: local vs Cloudflare vs Tauri vs CLI
+- [x] Monitoring view (`/monitor` — worker + Pocket Node status)
+- [x] Connection profile badge in header (`VITE_CONNECTION_PROFILE`)
+- [ ] Shared UI between web and desktop (web embedded in Tauri)
+- [x] Environment config docs (setup wizard + `VITE_*` vars)
 
 
 # Phase 6 - Advanced Automation

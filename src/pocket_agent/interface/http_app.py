@@ -46,8 +46,10 @@ def _static_dir(runtime: AgentRuntime) -> Path | None:
     cfg = _http_config(runtime)
     if not cfg.get("serve_static", True):
         return None
-    rel = cfg.get("static_dir", "apps/web/dist")
-    path = runtime.project_root / rel
+    rel = cfg.get("static_dir", "../pocket-agent-web/dist")
+    path = Path(rel)
+    if not path.is_absolute():
+        path = (runtime.project_root / rel).resolve()
     if path.is_dir() and (path / "index.html").is_file():
         return path
     return None

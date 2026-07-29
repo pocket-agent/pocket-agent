@@ -1,4 +1,4 @@
-"""First-time setup wizard — defaults to all-local profile."""
+"""First-time setup wizard — writes workspace config/user-setup.yaml."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from pathlib import Path
 
 import yaml
 
-from pocket_agent.cli.init_apps import find_project_root
+from pocket_agent.workspace.paths import find_workspace_root
 
 logger = logging.getLogger(__name__)
 
@@ -16,11 +16,12 @@ DEFAULTS_REL = Path("config/setup.defaults.yaml")
 
 
 def run_setup(
-    project_root: Path | None = None,
+    workspace_root: Path | None = None,
     force: bool = False,
     profile: str | None = None,
+    overrides: dict | None = None,
 ) -> int:
-    root = project_root or find_project_root()
+    root = workspace_root or find_workspace_root()
     target = root / SETUP_REL
     defaults = root / DEFAULTS_REL
 
@@ -28,7 +29,7 @@ def run_setup(
         logger.error("Missing %s", defaults)
         return 1
 
-    if target.exists() and not force:
+    if target.exists() and not force and not overrides:
         logger.info("Setup already exists at %s (use --force to overwrite)", SETUP_REL)
         return 0
 
@@ -38,19 +39,32 @@ def run_setup(
     if profile:
         data["profile"] = profile
 
+    if overrides:
+        data = _deep_merge(data, overrides)
+
     target.parent.mkdir(parents=True, exist_ok=True)
     with target.open("w", encoding="utf-8") as fh:
         yaml.safe_dump(data, fh, default_flow_style=False, sort_keys=False)
 
     logger.info("Created %s (profile: %s)", SETUP_REL, data.get("profile", "all-local"))
     logger.info(
-        "Local stack: web %s → api %s → agent %s",
+        "Stack: web %s → api %s → agent %s",
         data.get("web", {}).get("url"),
         data.get("api", {}).get("url"),
         data.get("agent", {}).get("url"),
     )
-    logger.info("Next: pocket-agent init  # clone apps/web + apps/api (Hono template)")
+    logger.info("Next: pocket-agent init  # install modules from latest releases")
     return 0
+
+
+def _deep_merge(base: dict, patch: dict) -> dict:
+    out = dict(base)
+    for key, value in patch.items():
+        if isinstance(value, dict) and isinstance(out.get(key), dict):
+            out[key] = _deep_merge(out[key], value)
+        else:
+            out[key] = value
+    return out
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -64,7 +78,7 @@ def main(argv: list[str] | None = None) -> int:
         "--profile",
         choices=["all-local", "hosted-ui-home-agent", "cloud-only"],
         default=None,
-        help="Override profile (default: all-local from setup.defaults.yaml)",
+        help="Override profile",
     )
     parser.add_argument(
         "--force",

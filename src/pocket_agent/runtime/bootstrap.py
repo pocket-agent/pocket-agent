@@ -13,13 +13,9 @@ logger = logging.getLogger(__name__)
 
 
 def find_project_root() -> Path:
-    cwd = Path.cwd()
-    if (cwd / "config").is_dir():
-        return cwd
-    candidate = Path(__file__).resolve().parents[3]
-    if (candidate / "config").is_dir():
-        return candidate
-    return cwd
+    from pocket_agent.workspace.paths import find_agent_root
+
+    return find_agent_root()
 
 
 def build_runtime(project_root: Path | None = None) -> AgentRuntime:

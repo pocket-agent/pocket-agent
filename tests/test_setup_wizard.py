@@ -13,7 +13,7 @@ def test_run_setup_creates_user_config(tmp_path: Path):
         "profile: all-local\nweb:\n  mode: local\n  url: http://localhost:5173\n"
     )
 
-    code = run_setup(project_root=tmp_path, force=True)
+    code = run_setup(workspace_root=tmp_path, force=True)
     assert code == 0
 
     user_setup = (tmp_path / "config" / "user-setup.yaml").read_text()
@@ -26,6 +26,6 @@ def test_run_setup_skips_if_exists(tmp_path: Path):
     (config_dir / "setup.defaults.yaml").write_text("profile: all-local\n")
     (config_dir / "user-setup.yaml").write_text("profile: custom\n")
 
-    code = run_setup(project_root=tmp_path, force=False)
+    code = run_setup(workspace_root=tmp_path, force=False)
     assert code == 0
     assert "custom" in (config_dir / "user-setup.yaml").read_text()

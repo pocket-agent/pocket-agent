@@ -72,7 +72,7 @@ def run_agent_command(command: str) -> None:
 
 def main() -> None:
     if len(sys.argv) > 1 and sys.argv[1] == "init":
-        from pocket_agent.cli.init_apps import main as init_main
+        from pocket_agent.cli.init_modules import main as init_main
 
         sys.exit(init_main(sys.argv[2:]))
         return
@@ -83,18 +83,24 @@ def main() -> None:
         sys.exit(setup_main(sys.argv[2:]))
         return
 
+    if len(sys.argv) > 1 and sys.argv[1] == "wizard":
+        from pocket_agent.cli.workspace_wizard import main as wizard_main
+
+        sys.exit(wizard_main(sys.argv[2:]))
+        return
+
     parser = argparse.ArgumentParser(prog="pocket-agent")
     parser.add_argument(
         "command",
         nargs="?",
         default="telegram",
-        choices=["telegram", "serve", "run", "init", "setup"],
-        help="telegram|serve|run|init|setup",
+        choices=["telegram", "serve", "run", "init", "setup", "wizard"],
+        help="telegram|serve|run|init|setup|wizard",
     )
     args = parser.parse_args()
 
     if args.command == "init":
-        from pocket_agent.cli.init_apps import run_init
+        from pocket_agent.cli.init_modules import run_init
 
         logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
         sys.exit(run_init())
@@ -105,6 +111,13 @@ def main() -> None:
 
         logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
         sys.exit(run_setup())
+        return
+
+    if args.command == "wizard":
+        from pocket_agent.cli.workspace_wizard import run_wizard_server
+
+        logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
+        sys.exit(run_wizard_server())
         return
 
     run_agent_command(args.command)
