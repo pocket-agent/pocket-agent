@@ -16,6 +16,7 @@ class AppSettings(BaseSettings):
     nas_root: str = Field(default="", alias="NAS_ROOT")
     log_level: str = Field(default="INFO", alias="LOG_LEVEL")
     google_client_id: str = Field(default="", alias="GOOGLE_CLIENT_ID")
+    auth_mode: str = Field(default="google", alias="AUTH_MODE")
 
     def allowed_user_ids(self) -> set[int]:
         if not self.telegram_allowed_user_ids.strip():

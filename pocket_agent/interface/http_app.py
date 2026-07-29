@@ -11,7 +11,7 @@ from starlette.responses import FileResponse, JSONResponse, Response
 from starlette.routing import Mount, Route
 from starlette.staticfiles import StaticFiles
 
-from pocket_agent.interface.auth import AuthError, extract_bearer_token, verify_google_id_token
+from pocket_agent.interface.auth import AuthError, resolve_user_claims
 from pocket_agent.runtime.context import AgentRuntime
 
 try:
@@ -88,10 +88,7 @@ async def status(request: Request) -> JSONResponse:
 
 def _require_user(request: Request) -> dict:
     runtime: AgentRuntime = request.app.state.runtime
-    token = extract_bearer_token(request.headers.get("authorization"))
-    if not token:
-        raise AuthError("Missing bearer token")
-    return verify_google_id_token(token, runtime.settings.env)
+    return resolve_user_claims(request.headers.get("authorization"), runtime.settings.env)
 
 
 async def me(request: Request) -> JSONResponse:

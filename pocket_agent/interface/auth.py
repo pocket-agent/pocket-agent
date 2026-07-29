@@ -3,6 +3,11 @@ from jwt import PyJWKClient
 
 from pocket_agent.config.models import AppSettings
 
+try:
+    from pocket_agent_sdk.auth import local_dev_claims
+except ImportError:
+    local_dev_claims = None  # type: ignore[assignment,misc]
+
 _GOOGLE_JWKS = PyJWKClient("https://www.googleapis.com/oauth2/v3/certs")
 _GOOGLE_ISSUERS = ["https://accounts.google.com", "accounts.google.com"]
 
@@ -21,6 +26,20 @@ def extract_bearer_token(authorization: str | None) -> str | None:
         return None
     token = parts[1].strip()
     return token or None
+
+
+def is_local_auth(env: AppSettings) -> bool:
+    return env.auth_mode.strip().lower() == "none"
+
+
+def local_user_claims() -> dict:
+    if local_dev_claims is not None:
+        return local_dev_claims()
+    return {
+        "sub": "local-dev",
+        "email": "local@pocket-agent.dev",
+        "name": "Local User",
+    }
 
 
 def verify_google_id_token(token: str, env: AppSettings) -> dict:
@@ -44,6 +63,16 @@ def verify_google_id_token(token: str, env: AppSettings) -> dict:
         raise AuthError("Token expired", status_code=401) from None
     except jwt.InvalidTokenError as exc:
         raise AuthError("Invalid token", status_code=401) from exc
+
+
+def resolve_user_claims(request_authorization: str | None, env: AppSettings) -> dict:
+    if is_local_auth(env):
+        return local_user_claims()
+
+    token = extract_bearer_token(request_authorization)
+    if not token:
+        raise AuthError("Missing bearer token")
+    return verify_google_id_token(token, env)
 
 
 def user_id_from_claims(claims: dict) -> str | None:

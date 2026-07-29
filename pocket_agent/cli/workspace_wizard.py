@@ -20,6 +20,11 @@ from pocket_agent.cli.setup_wizard import run_setup
 from pocket_agent.cli.workspace_bootstrap import check_prerequisites, run_bootstrap
 from pocket_agent.workspace.paths import find_workspace_root, find_wizard_dist
 
+try:
+    from pocket_agent_sdk.auth import resolve_auth_mode
+except ImportError:
+    resolve_auth_mode = None  # type: ignore[assignment,misc]
+
 logger = logging.getLogger(__name__)
 
 DEFAULT_PORT = 8790
@@ -85,6 +90,18 @@ async def api_setup_post(request: Request) -> JSONResponse:
             overrides[name] = {"mode": "remote", "url": urls.get(name, "")}
         else:
             overrides[name] = {"mode": "local"}
+
+    if body.get("ui", {}).get("primary"):
+        overrides["ui"] = body["ui"]
+
+    web_mode = module_modes.get("web", "local" if profile == "all-local" else "remote")
+    api_mode = module_modes.get("api", "local" if profile == "all-local" else "remote")
+    if resolve_auth_mode is not None:
+        overrides["auth"] = {"mode": resolve_auth_mode(profile, web_mode, api_mode)}
+    elif profile == "all-local" and web_mode == "local" and api_mode == "local":
+        overrides["auth"] = {"mode": "none"}
+    else:
+        overrides["auth"] = {"mode": "google"}
 
     if body.get("google_oauth", {}).get("client_id"):
         overrides["google_oauth"] = body["google_oauth"]

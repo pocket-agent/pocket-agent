@@ -8,6 +8,7 @@ import subprocess
 from pathlib import Path
 
 from pocket_agent.workspace.paths import find_agent_root, find_workspace_root
+from pocket_agent.workspace.user_setup import workspace_auth_mode
 
 logger = logging.getLogger(__name__)
 
@@ -48,11 +49,14 @@ def write_local_env(
     workspace_root: Path | None = None,
     google_client_id: str | None = None,
     gemini_api_key: str | None = None,
+    auth_mode: str | None = None,
 ) -> list[str]:
-    """Sync OAuth / LLM keys across agent, web, and API env files."""
+    """Sync auth mode, OAuth, and LLM keys across agent, web, and API env files."""
     workspace = workspace_root or find_workspace_root()
     agent = find_agent_root()
     actions: list[str] = []
+
+    mode = auth_mode or workspace_auth_mode(workspace)
 
     agent_env = agent / ".env"
     agent_example = agent / ".env.example"
@@ -69,7 +73,14 @@ def write_local_env(
     if _copy_example_if_missing(api_env, api_example):
         actions.append(f"created:{api_env.relative_to(workspace)}")
 
-    if google_client_id:
+    if _upsert_env_line(agent_env, "AUTH_MODE", mode):
+        actions.append(f"updated:pocket-agent/.env AUTH_MODE={mode}")
+    if _upsert_env_line(web_env, "VITE_AUTH_MODE", mode):
+        actions.append(f"updated:pocket-agent-web-app/.env.local VITE_AUTH_MODE={mode}")
+    if _upsert_env_line(api_env, "AUTH_MODE", mode):
+        actions.append(f"updated:pocket-agent-api-app/.dev.vars AUTH_MODE={mode}")
+
+    if mode == "google" and google_client_id:
         if _upsert_env_line(agent_env, "GOOGLE_CLIENT_ID", google_client_id):
             actions.append("updated:pocket-agent/.env GOOGLE_CLIENT_ID")
         if _upsert_env_line(web_env, "VITE_GOOGLE_CLIENT_ID", google_client_id):
@@ -122,6 +133,7 @@ def check_prerequisites(workspace_root: Path | None = None) -> dict:
         "wizard_built": has_path("pocket-agent-wizard/dist/index.html")
         or has_path("wizard/dist/index.html"),
         "desktop_icons": has_path("pocket-agent-desktop-app/src-tauri/icons/32x32.png"),
+        "auth_mode": workspace_auth_mode(workspace),
         "modules": {
             "web": has_path("pocket-agent-web-app/package.json"),
             "api": has_path("pocket-agent-api-app/package.json"),
@@ -137,16 +149,23 @@ def run_bootstrap(
     gemini_api_key: str | None = None,
     use_desktop: bool = False,
     generate_icons: bool = True,
+    auth_mode: str | None = None,
 ) -> dict:
     workspace = workspace_root or find_workspace_root()
     result: dict = {"actions": [], "prereqs": check_prerequisites(workspace)}
 
     result["actions"].extend(
-        write_local_env(workspace, google_client_id=google_client_id, gemini_api_key=gemini_api_key)
+        write_local_env(
+            workspace,
+            google_client_id=google_client_id,
+            gemini_api_key=gemini_api_key,
+            auth_mode=auth_mode,
+        )
     )
 
     if use_desktop and generate_icons:
         result["actions"].extend(ensure_desktop_icons(workspace))
 
     result["use_desktop"] = use_desktop
+    result["auth_mode"] = auth_mode or workspace_auth_mode(workspace)
     return result
