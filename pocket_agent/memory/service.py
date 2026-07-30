@@ -4,6 +4,7 @@ from pocket_agent.memory.db import MemoryDatabase
 from pocket_agent.memory.embeddings import EmbeddingService
 from pocket_agent.memory.knowledge import KnowledgeBase
 from pocket_agent.memory.personal import PersonalMemory, PersonalMemoryStore
+from pocket_agent.memory.skill_retrieval import retrieve_skills
 from pocket_agent.memory.user_settings import (
     personal_memory_enabled,
     set_personal_memory_enabled,
