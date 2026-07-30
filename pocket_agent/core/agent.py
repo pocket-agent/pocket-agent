@@ -62,13 +62,19 @@ class AgentCore:
                 return self._truncate(self._format_tool_result(tool_command["name"], result.data))
             return f"Could not complete request: {result.error}"
 
-        return await self._handle_llm_message(user_text, chat_id=chat_id, history=history or [])
+        return await self._handle_llm_message(
+            user_text,
+            chat_id=chat_id,
+            history=history or [],
+            user_key=user_key,
+        )
 
     async def _handle_llm_message(
         self,
         user_text: str,
         chat_id: int | None = None,
         history: list[dict] | None = None,
+        user_key: str | None = None,
     ) -> str:
         relevant_skills = self._skills
         memory_block = ""
