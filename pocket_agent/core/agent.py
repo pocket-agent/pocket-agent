@@ -35,7 +35,7 @@ class AgentCore:
             + "\n\n"
             + format_tool_catalog()
             + "\n\nExample tool call:\n"
-            + '{"tool": "web_search", "arguments": {"query": "current time in Amsterdam"}}'
+            + '{"tool": "current_weather", "arguments": {"location": "Amsterdam"}}'
         )
 
     async def handle_message(self, user_text: str, chat_id: int | None = None) -> str:
@@ -96,6 +96,11 @@ class AgentCore:
                 prompt_parts.append("Conversation history:\n" + "\n".join(hist_lines))
 
         prompt_parts.append(f"User message: {user_text}")
+        if re.search(r"\bweather\b", user_text, re.IGNORECASE):
+            prompt_parts.append(
+                "Hint: for weather questions use tool current_weather with the city name, "
+                "not web_search."
+            )
         if memory_block:
             prompt_parts.append(memory_block)
         prompt_parts.append(f"Available skills:\n{skills_summary}")
@@ -145,6 +150,10 @@ class AgentCore:
         web = re.match(r"^/web\s+(.+)$", stripped, re.IGNORECASE | re.DOTALL)
         if web:
             return {"name": "web_search", "query": web.group(1).strip()}
+
+        weather = re.match(r"^/weather\s+(.+)$", stripped, re.IGNORECASE | re.DOTALL)
+        if weather:
+            return {"name": "current_weather", "location": weather.group(1).strip()}
 
         if lower == "/kb_index":
             return {"name": "index_knowledge"}
@@ -269,6 +278,8 @@ class AgentCore:
 
         if tool_name == "web_search":
             lines = [f"Web results for '{data.get('query')}':"]
+            if data.get("hint"):
+                lines.append(str(data["hint"]))
             for i, row in enumerate(data.get("results") or [], 1):
                 lines.append(f"{i}. {row.get('title', '')}")
                 lines.append(f"   {row.get('url', '')}")
@@ -276,6 +287,9 @@ class AgentCore:
             if len(lines) == 1:
                 lines.append("No results.")
             return "\n".join(lines)
+
+        if tool_name == "current_weather":
+            return data.get("summary") or str(data)
 
         if tool_name == "search_files":
             matches = data.get("matches", [])

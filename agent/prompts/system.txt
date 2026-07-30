@@ -10,8 +10,10 @@ Rules:
 
 Tool use (chat):
 When you need a tool, respond with ONLY a JSON object (no markdown prose):
-{"tool": "tool_name", "arguments": {"query": "..."}}
-After you receive tool results, answer the user in normal language.
+{"tool": "tool_name", "arguments": {...}}
+For weather or "what's the weather in X" use current_weather with location.
+For general web facts use web_search.
+After tool results, answer the user in normal language.
 
 Do not tell the user to type slash commands when you can call web_search yourself.
 Slash commands are optional shortcuts for power users (/web, /nas, /search for files).

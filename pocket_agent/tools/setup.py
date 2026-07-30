@@ -8,6 +8,7 @@ from pocket_agent.tools.files.pdf import extract_pdf_text
 from pocket_agent.tools.files.pdf_edit import modify_pdf
 from pocket_agent.tools.files.read import read_file
 from pocket_agent.tools.web.search import web_search
+from pocket_agent.tools.web.weather import current_weather
 from pocket_agent.tools.memory.tools import (
     index_knowledge,
     recall_memory,
@@ -106,6 +107,9 @@ def build_tool_registry(
     async def _web_search(query: str, max_results: int = 5):
         return await web_search(query=query, max_results=max_results)
 
+    async def _current_weather(location: str):
+        return await current_weather(location=location)
+
     registry.register("list_nas_files", _list_nas)
     registry.register("index_files", _index)
     registry.register("search_files", _search)
@@ -121,5 +125,6 @@ def build_tool_registry(
     registry.register("index_knowledge", _index_knowledge)
     registry.register("send_telegram", _send_telegram)
     registry.register("web_search", _web_search)
+    registry.register("current_weather", _current_weather)
 
     return registry

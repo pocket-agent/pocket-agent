@@ -60,6 +60,8 @@ def format_tool_result(tool_name: str, result: ToolResult) -> str:
     data = result.data
     if tool_name == "web_search":
         lines = [f"[web_search] query={data.get('query')}"]
+        if data.get("hint"):
+            lines.append(str(data["hint"]))
         for i, row in enumerate(data.get("results") or [], 1):
             lines.append(
                 f"{i}. {row.get('title', '')}\n   {row.get('url', '')}\n   {row.get('snippet', '')}"
@@ -67,6 +69,8 @@ def format_tool_result(tool_name: str, result: ToolResult) -> str:
         if len(lines) == 1:
             lines.append("No results.")
         return "\n".join(lines)
+    if tool_name == "current_weather":
+        return f"[current_weather] {data.get('summary', data)}"
     return f"[{tool_name}] {json.dumps(data, ensure_ascii=False)[:4000]}"
 
 

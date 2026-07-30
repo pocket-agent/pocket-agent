@@ -6,10 +6,17 @@ from typing import Any
 
 # Tools the chat agent may invoke via JSON (see agent/tool_loop.py).
 AGENT_TOOL_SPECS: dict[str, dict[str, Any]] = {
+    "current_weather": {
+        "description": (
+            "Current weather and local time for a city or place (use for weather/temperature "
+            "questions — more reliable than web_search)."
+        ),
+        "parameters": {"location": "string — city name e.g. Amsterdam"},
+    },
     "web_search": {
         "description": (
-            "Search the public web for current information: weather, news, time zones, "
-            "facts, prices, events. Use for anything not in local files."
+            "Search the public web for news, facts, prices, events. "
+            "For weather or local time prefer current_weather."
         ),
         "parameters": {
             "query": "string — search query",
