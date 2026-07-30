@@ -1,17 +1,17 @@
-default_provider: gemini
+default_provider: ollama
 
 routing:
   classification: ollama
-  reasoning: gemini
-  coding: claude
-  default: gemini
+  reasoning: ollama
+  coding: ollama
+  default: ollama
 
 providers:
   gemini:
     model: gemini-2.0-flash
   ollama:
     base_url: http://localhost:11434
-    model: llama3.2
+    model: gemma3:4b
   openai:
     model: gpt-4o
   claude:

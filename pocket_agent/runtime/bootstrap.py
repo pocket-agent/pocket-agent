@@ -23,7 +23,7 @@ def build_runtime(project_root: Path | None = None) -> AgentRuntime:
     settings = load_settings(root)
     ensure_data_dirs(settings.paths)
 
-    llm_router = LlmRouter(settings.llm, settings.env)
+    llm_router = LlmRouter(settings.llm, settings.env, cache_dir=settings.paths.cache_dir)
     memory = MemoryService(settings.paths, settings.env)
     tools = build_tool_registry(settings.paths, memory=memory)
     skills = load_skills(settings.paths.skills_dir)

@@ -108,6 +108,50 @@ async def me(request: Request) -> JSONResponse:
     )
 
 
+async def settings_llm_get(request: Request) -> JSONResponse:
+    runtime: AgentRuntime = request.app.state.runtime
+    try:
+        providers = await runtime.llm_router.describe_providers()
+        installed = await runtime.llm_router.list_ollama_models()
+        return _ok(
+            {
+                "active_provider": runtime.llm_router.active_reasoning_provider(),
+                "active_model": runtime.llm_router.reasoning_model(),
+                "providers": providers,
+                "ollama_installed_models": installed,
+                "ollama_recommended": runtime.llm_router.recommended_ollama_models(),
+            }
+        )
+    except Exception as exc:
+        logger.exception("settings llm get failed")
+        return _err(str(exc), 500)
+
+
+async def settings_llm_post(request: Request) -> JSONResponse:
+    runtime: AgentRuntime = request.app.state.runtime
+    try:
+        body = await request.json()
+    except json.JSONDecodeError:
+        return _err("Invalid JSON body")
+
+    try:
+        if body.get("provider"):
+            runtime.llm_router.set_reasoning_provider(str(body["provider"]))
+        if body.get("ollama_model"):
+            runtime.llm_router.set_ollama_model(str(body["ollama_model"]))
+        if body.get("pull_ollama_model"):
+            await runtime.llm_router.pull_ollama_model(str(body["pull_ollama_model"]))
+    except ValueError as exc:
+        return _err(str(exc), 400)
+    except RuntimeError as exc:
+        return _err(str(exc), 503)
+    except Exception as exc:
+        logger.exception("settings llm post failed")
+        return _err(str(exc), 500)
+
+    return await settings_llm_get(request)
+
+
 async def chat(request: Request) -> JSONResponse:
     runtime: AgentRuntime = request.app.state.runtime
     try:
@@ -169,6 +213,8 @@ def create_http_app(runtime: AgentRuntime) -> Starlette:
         Route("/health", health, methods=["GET"]),
         Route("/status", status, methods=["GET"]),
         Route("/me", me, methods=["GET"]),
+        Route("/settings/llm", settings_llm_get, methods=["GET"]),
+        Route("/settings/llm", settings_llm_post, methods=["POST"]),
         Route("/chat", chat, methods=["POST"]),
     ]
 
