@@ -19,6 +19,7 @@ AGENT_TOOL_SPECS: dict[str, dict[str, Any]] = {
     "web_search": {
         "description": (
             "Search the public web for news, facts, prices, events. "
+            "Do not use for Pocket Agent identity or GitHub — use system identity facts. "
             "For weather use current_weather; for page content use fetch_url."
         ),
         "parameters": {

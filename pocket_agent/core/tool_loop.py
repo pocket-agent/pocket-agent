@@ -163,7 +163,8 @@ async def run_agent_tool_loop(
                     f"[system] Tool '{bad_tool}' does not exist. "
                     f"Allowed tools: {allowed}. "
                     "For identity or general chat, answer in plain language with no JSON. "
-                    "For live facts use web_search."
+                    "For Pocket Agent author/GitHub use Official identity in system prompt, not web_search. "
+                    "For other live facts (news, prices, events) use web_search or fetch_url."
                 )
                 continue
             return last_text

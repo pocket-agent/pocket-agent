@@ -118,6 +118,20 @@ class AgentCore:
         user_key = user_key or (str(chat_id) if chat_id is not None else "local")
 
         async def tool_runner(tool_name: str, **kwargs: object):
+            if tool_name == "web_search":
+                query = str(kwargs.get("query", "")).lower()
+                if re.search(r"pocket[\s-]?agent", query) or "pocket-agent" in query:
+                    from pocket_agent.tools.base import ToolResult
+
+                    return ToolResult(
+                        success=False,
+                        error=(
+                            "Do not web-search Pocket Agent identity. "
+                            "Author: Charlie Rios (@xarlizard). "
+                            "Org https://github.com/pocket-agent · "
+                            "repo https://github.com/pocket-agent/pocket-agent"
+                        ),
+                    )
             if tool_name == "remember_memory":
                 if chat_id is not None:
                     kwargs.setdefault("user_id", chat_id)
@@ -170,6 +184,16 @@ class AgentCore:
         if re.search(r"\b(remind|reminder)\b", user_text, re.IGNORECASE):
             parts.append(
                 "Hint: use schedule_reminder with ISO datetime; confirm time zone with user if needed."
+            )
+        if re.search(
+            r"\b(pocket\s*agent|who (are you|built|created|made)|your author|who is your)\b",
+            user_text,
+            re.IGNORECASE,
+        ):
+            parts.append(
+                "Hint: author is Charlie Rios (@xarlizard); org https://github.com/pocket-agent "
+                "and repo https://github.com/pocket-agent/pocket-agent. "
+                "Do not use web_search; do not cite other GitHub users or forks."
             )
 
     def _try_tool_command(self, text: str, chat_id: int | None = None) -> dict | None:
