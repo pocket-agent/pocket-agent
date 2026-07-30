@@ -82,7 +82,9 @@ class AgentCore:
 
         if self._memory:
             relevant_skills = self._memory.retrieve_skills_for_query(user_text, self._skills)
-            memories = await self._memory.recall(user_text, user_id=user_id, limit=3)
+            memories: list = []
+            if self._memory.is_personal_memory_enabled():
+                memories = await self._memory.recall(user_text, user_id=user_id, limit=3)
             knowledge = await self._memory.search_knowledge(user_text, limit=3)
             memory_block = self._memory.context_for_prompt(
                 user_text, memories, knowledge, relevant_skills

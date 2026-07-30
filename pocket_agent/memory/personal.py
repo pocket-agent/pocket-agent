@@ -126,3 +126,11 @@ class PersonalMemoryStore:
         with self._db._connect() as conn:
             row = conn.execute("SELECT COUNT(*) AS c FROM personal_memories").fetchone()
             return int(row["c"])
+
+    def clear_all(self) -> int:
+        with self._db._connect() as conn:
+            row = conn.execute("SELECT COUNT(*) AS c FROM personal_memories").fetchone()
+            deleted = int(row["c"])
+            conn.execute("DELETE FROM embeddings WHERE entity_type = 'memory'")
+            conn.execute("DELETE FROM personal_memories")
+        return deleted

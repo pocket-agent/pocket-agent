@@ -152,6 +152,42 @@ async def settings_llm_post(request: Request) -> JSONResponse:
     return await settings_llm_get(request)
 
 
+async def settings_memory_get(request: Request) -> JSONResponse:
+    runtime: AgentRuntime = request.app.state.runtime
+    memory = runtime.memory
+    return _ok(
+        {
+            "enabled": memory.is_personal_memory_enabled(),
+            "memory_count": memory.personal.count(),
+        }
+    )
+
+
+async def settings_memory_post(request: Request) -> JSONResponse:
+    runtime: AgentRuntime = request.app.state.runtime
+    try:
+        body = await request.json()
+    except json.JSONDecodeError:
+        return _err("Invalid JSON body")
+
+    memory = runtime.memory
+    erased = 0
+
+    if body.get("erase_all"):
+        erased = memory.clear_personal_memories()
+
+    if "enabled" in body:
+        memory.set_personal_memory_enabled(bool(body["enabled"]))
+
+    return _ok(
+        {
+            "enabled": memory.is_personal_memory_enabled(),
+            "memory_count": memory.personal.count(),
+            "erased_count": erased,
+        }
+    )
+
+
 async def chat(request: Request) -> JSONResponse:
     runtime: AgentRuntime = request.app.state.runtime
     try:
@@ -216,6 +252,8 @@ def create_http_app(runtime: AgentRuntime) -> Starlette:
         Route("/me", me, methods=["GET"]),
         Route("/settings/llm", settings_llm_get, methods=["GET"]),
         Route("/settings/llm", settings_llm_post, methods=["POST"]),
+        Route("/settings/memory", settings_memory_get, methods=["GET"]),
+        Route("/settings/memory", settings_memory_post, methods=["POST"]),
         Route("/chat", chat, methods=["POST"]),
     ]
 

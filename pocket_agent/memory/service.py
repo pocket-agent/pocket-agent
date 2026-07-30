@@ -4,7 +4,10 @@ from pocket_agent.memory.db import MemoryDatabase
 from pocket_agent.memory.embeddings import EmbeddingService
 from pocket_agent.memory.knowledge import KnowledgeBase
 from pocket_agent.memory.personal import PersonalMemory, PersonalMemoryStore
-from pocket_agent.memory.skill_retrieval import retrieve_skills
+from pocket_agent.memory.user_settings import (
+    personal_memory_enabled,
+    set_personal_memory_enabled,
+)
 
 
 class MemoryService:
@@ -29,7 +32,19 @@ class MemoryService:
     def embeddings_available(self) -> bool:
         return self._embeddings.available
 
+    def is_personal_memory_enabled(self) -> bool:
+        return personal_memory_enabled(self._paths.cache_dir)
+
+    def set_personal_memory_enabled(self, enabled: bool) -> None:
+        set_personal_memory_enabled(self._paths.cache_dir, enabled)
+
+    def clear_personal_memories(self) -> int:
+        return self._personal.clear_all()
+
     async def remember(self, user_id: int, content: str, category: str = "preference") -> PersonalMemory | str:
+        if not self.is_personal_memory_enabled():
+            return "Personal memory is disabled in settings"
+
         result = self._personal.add(user_id, content, category=category)
         if isinstance(result, str):
             return result
@@ -40,6 +55,9 @@ class MemoryService:
         return result
 
     async def recall(self, query: str, user_id: int | None = None, limit: int = 5) -> list[PersonalMemory]:
+        if not self.is_personal_memory_enabled():
+            return []
+
         fts_results = self._personal.search_fts(query, user_id=user_id, limit=limit)
         if fts_results:
             return fts_results
