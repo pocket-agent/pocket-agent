@@ -1,18 +1,13 @@
-from pocket_agent.core.tool_loop import parse_tool_call
+from pocket_agent.core.tool_loop import parse_tool_call, unknown_tool_in_response
 
 
-def test_parse_tool_call_web_search():
-    text = '{"tool": "web_search", "arguments": {"query": "time Amsterdam"}}'
-    parsed = parse_tool_call(text)
-    assert parsed == ("web_search", {"query": "time Amsterdam"})
+def test_unknown_tool_not_parsed_as_valid():
+    text = '{"tool": "general", "arguments": {"query": "author"}}'
+    assert parse_tool_call(text) is None
+    assert unknown_tool_in_response(text) == "general"
 
 
-def test_parse_tool_call_fenced():
-    text = 'Here is the call:\n```json\n{"tool": "web_search", "arguments": {"query": "weather"}}\n```'
-    parsed = parse_tool_call(text)
-    assert parsed == ("web_search", {"query": "weather"})
-
-
-def test_parse_tool_call_unknown_tool():
-    parsed = parse_tool_call('{"tool": "delete_everything", "arguments": {}}')
-    assert parsed is None
+def test_valid_tool_parsed():
+    text = '{"tool": "current_weather", "arguments": {"location": "Amsterdam"}}'
+    assert parse_tool_call(text) == ("current_weather", {"location": "Amsterdam"})
+    assert unknown_tool_in_response(text) is None

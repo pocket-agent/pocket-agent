@@ -31,42 +31,56 @@ _SUMMARY_TOOLS = frozenset(
 )
 
 
-def _parse_payload(raw: str) -> tuple[str, dict[str, Any]] | None:
-    try:
-        payload = json.loads(raw)
-    except json.JSONDecodeError:
-        return None
-    tool = payload.get("tool")
-    args = payload.get("arguments") or {}
-    if isinstance(tool, str) and tool in AGENT_TOOL_SPECS and isinstance(args, dict):
-        return tool, args
-    return None
-
-
-def parse_tool_call(text: str) -> tuple[str, dict[str, Any]] | None:
-    """Extract first tool call from model output."""
+def _extract_tool_payload(text: str) -> tuple[str, dict[str, Any]] | None:
+    """Parse tool JSON from model output; tool name may be invalid."""
     stripped = text.strip()
     if not stripped:
         return None
 
     for match in _FENCED_JSON_RE.finditer(stripped):
-        parsed = _parse_payload(match.group(1))
-        if parsed:
-            return parsed
+        try:
+            payload = json.loads(match.group(1))
+        except json.JSONDecodeError:
+            continue
+        if isinstance(payload, dict) and isinstance(payload.get("tool"), str):
+            args = payload.get("arguments") or {}
+            if isinstance(args, dict):
+                return payload["tool"], args
 
     start = stripped.find("{")
     while start >= 0:
         try:
             payload, _end = json.JSONDecoder().raw_decode(stripped, start)
-            if isinstance(payload, dict) and "tool" in payload:
-                parsed = _parse_payload(json.dumps(payload))
-                if parsed:
-                    return parsed
+            if isinstance(payload, dict) and isinstance(payload.get("tool"), str):
+                args = payload.get("arguments") or {}
+                if isinstance(args, dict):
+                    return payload["tool"], args
         except json.JSONDecodeError:
             pass
         start = stripped.find("{", start + 1)
-
     return None
+
+
+def parse_tool_call(text: str) -> tuple[str, dict[str, Any]] | None:
+    """Extract first valid tool call from model output."""
+    extracted = _extract_tool_payload(text)
+    if not extracted:
+        return None
+    tool, args = extracted
+    if tool in AGENT_TOOL_SPECS:
+        return tool, args
+    return None
+
+
+def unknown_tool_in_response(text: str) -> str | None:
+    """Tool name from JSON output when it is not in the agent catalog."""
+    extracted = _extract_tool_payload(text)
+    if not extracted:
+        return None
+    tool, _ = extracted
+    if tool in AGENT_TOOL_SPECS:
+        return None
+    return tool
 
 
 def format_tool_result(tool_name: str, result: ToolResult) -> str:
@@ -142,6 +156,16 @@ async def run_agent_tool_loop(
         last_text = (getattr(response, "text", None) or str(response)).strip()
         call = parse_tool_call(last_text)
         if call is None:
+            bad_tool = unknown_tool_in_response(last_text)
+            if bad_tool:
+                allowed = ", ".join(sorted(AGENT_TOOL_SPECS.keys()))
+                tool_notes.append(
+                    f"[system] Tool '{bad_tool}' does not exist. "
+                    f"Allowed tools: {allowed}. "
+                    "For identity or general chat, answer in plain language with no JSON. "
+                    "For live facts use web_search."
+                )
+                continue
             return last_text
 
         tool_name, args = call
