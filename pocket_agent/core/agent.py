@@ -1,9 +1,11 @@
 import re
 
 from pocket_agent.core.skill_loader import Skill
+from pocket_agent.core.tool_loop import run_agent_tool_loop
 from pocket_agent.llm.router import LlmRouter
 from pocket_agent.logging.action_log import log_action
 from pocket_agent.memory.service import MemoryService
+from pocket_agent.tools.catalog import format_tool_catalog
 from pocket_agent.tools.registry import ToolRegistry
 
 TELEGRAM_MAX_MESSAGE = 4000
@@ -25,6 +27,16 @@ class AgentCore:
         self._system_prompt = system_prompt
         self._logs_dir = logs_dir
         self._memory = memory
+        self._agent_system = self._build_agent_system_prompt(system_prompt)
+
+    def _build_agent_system_prompt(self, base: str) -> str:
+        return (
+            base
+            + "\n\n"
+            + format_tool_catalog()
+            + "\n\nExample tool call:\n"
+            + '{"tool": "web_search", "arguments": {"query": "current time in Amsterdam"}}'
+        )
 
     async def handle_message(self, user_text: str, chat_id: int | None = None) -> str:
         return await self.handle_chat_message(user_text, chat_id=chat_id)
@@ -88,18 +100,26 @@ class AgentCore:
             prompt_parts.append(memory_block)
         prompt_parts.append(f"Available skills:\n{skills_summary}")
         prompt_parts.append(
-            "Commands: /remember, /recall, /kb, /kb_index, /index, /nas, /search, "
-            "/read, /pdf, /excel, /edit_excel, /edit_word, /edit_pdf, /help"
+            "User slash shortcuts: /web (internet search), /nas, /search (local files only), "
+            "/remember, /recall, /kb, /read, /help"
         )
         prompt = "\n\n".join(prompt_parts)
 
-        response = await provider.complete(prompt, system=self._system_prompt)
+        async def _complete(user_prompt: str, system: str) -> object:
+            return await provider.complete(user_prompt, system=system)
+
+        response_text = await run_agent_tool_loop(
+            self._tools,
+            _complete,
+            prompt,
+            self._agent_system,
+        )
         log_action(
             self._logs_dir,
             "llm_response",
-            {"provider": response.provider, "model": response.model},
+            {"provider": getattr(provider, "name", "llm"), "model": getattr(provider, "model", "")},
         )
-        return self._truncate(response.text.strip())
+        return self._truncate(response_text.strip())
 
     def _truncate(self, text: str) -> str:
         if len(text) <= TELEGRAM_MAX_MESSAGE:
@@ -121,6 +141,10 @@ class AgentCore:
 
         if lower == "/index":
             return {"name": "index_files"}
+
+        web = re.match(r"^/web\s+(.+)$", stripped, re.IGNORECASE | re.DOTALL)
+        if web:
+            return {"name": "web_search", "query": web.group(1).strip()}
 
         if lower == "/kb_index":
             return {"name": "index_knowledge"}
@@ -241,6 +265,16 @@ class AgentCore:
             for r in results:
                 lines.append(f"• {r['source_path']} (chunk {r['chunk_index']})")
                 lines.append(f"  {r['text'][:200]}")
+            return "\n".join(lines)
+
+        if tool_name == "web_search":
+            lines = [f"Web results for '{data.get('query')}':"]
+            for i, row in enumerate(data.get("results") or [], 1):
+                lines.append(f"{i}. {row.get('title', '')}")
+                lines.append(f"   {row.get('url', '')}")
+                lines.append(f"   {row.get('snippet', '')}")
+            if len(lines) == 1:
+                lines.append("No results.")
             return "\n".join(lines)
 
         if tool_name == "search_files":

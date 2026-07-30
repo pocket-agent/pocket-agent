@@ -7,6 +7,7 @@ from pocket_agent.tools.files.nas import index_files, list_nas_files, search_fil
 from pocket_agent.tools.files.pdf import extract_pdf_text
 from pocket_agent.tools.files.pdf_edit import modify_pdf
 from pocket_agent.tools.files.read import read_file
+from pocket_agent.tools.web.search import web_search
 from pocket_agent.tools.memory.tools import (
     index_knowledge,
     recall_memory,
@@ -102,6 +103,9 @@ def build_tool_registry(
             return ToolResult(success=False, error="Telegram bot not initialized")
         return await send_telegram(bot, chat_id, text, paths.logs_dir)
 
+    async def _web_search(query: str, max_results: int = 5):
+        return await web_search(query=query, max_results=max_results)
+
     registry.register("list_nas_files", _list_nas)
     registry.register("index_files", _index)
     registry.register("search_files", _search)
@@ -116,5 +120,6 @@ def build_tool_registry(
     registry.register("search_knowledge", _search_knowledge)
     registry.register("index_knowledge", _index_knowledge)
     registry.register("send_telegram", _send_telegram)
+    registry.register("web_search", _web_search)
 
     return registry
