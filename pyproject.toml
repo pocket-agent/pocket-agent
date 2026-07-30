@@ -17,6 +17,7 @@ dependencies = [
     "pyyaml>=6.0.0",
     "duckduckgo-search>=7.0.0",
     "ddgs>=9.0.0",
+    "icalendar>=6.0.0",
     "starlette>=0.41.0",
     "uvicorn>=0.32.0",
 ]

@@ -114,6 +114,75 @@ Appends or replaces last paragraph. Safe-edit pipeline with docx validation.
 Sends response to user.
 
 
+# Web Tools
+
+
+## web_search()
+
+
+Search the public web (ddgs / DuckDuckGo backends).
+
+
+## fetch_url()
+
+
+Fetch a URL and return extracted readable text.
+
+
+## current_weather()
+
+
+Current conditions via Open-Meteo (no API key).
+
+
+## timezone_now()
+
+
+Local time for a city via Open-Meteo geocoding.
+
+
+# Utility Tools
+
+
+## exchange_rate()
+
+
+Currency conversion via Frankfurter (ECB rates).
+
+
+## unit_convert()
+
+
+Length, mass, and temperature conversion.
+
+
+# Calendar
+
+
+## calendar_events()
+
+
+Read-only upcoming events from `CALENDAR_ICS_URL` (private ICS feed).
+
+
+# Automation
+
+
+## schedule_reminder()
+
+
+## list_scheduled_tasks()
+
+
+## cancel_task()
+
+
+## run_allowed_script()
+
+
+Runs scripts listed in `config/settings.yaml` → `automation.allowed_scripts`.
+
+
 # Rules
 
 

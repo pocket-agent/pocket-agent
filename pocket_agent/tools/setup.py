@@ -1,5 +1,16 @@
-from pocket_agent.config.models import PathsConfig
+from pathlib import Path
+from typing import Any
+
+from pocket_agent.automation.reminders import ReminderStore
+from pocket_agent.automation.scripts import run_allowed_script
+from pocket_agent.config.models import AppSettings, PathsConfig
 from pocket_agent.memory.service import MemoryService
+from pocket_agent.tools.automation.reminders import (
+    cancel_task,
+    list_scheduled_tasks,
+    schedule_reminder,
+)
+from pocket_agent.tools.calendar.ics_calendar import calendar_events
 from pocket_agent.tools.communication.telegram import send_telegram
 from pocket_agent.tools.files.docx_edit import modify_docx
 from pocket_agent.tools.files.excel import analyze_excel, modify_excel
@@ -7,8 +18,6 @@ from pocket_agent.tools.files.nas import index_files, list_nas_files, search_fil
 from pocket_agent.tools.files.pdf import extract_pdf_text
 from pocket_agent.tools.files.pdf_edit import modify_pdf
 from pocket_agent.tools.files.read import read_file
-from pocket_agent.tools.web.search import web_search
-from pocket_agent.tools.web.weather import current_weather
 from pocket_agent.tools.memory.tools import (
     index_knowledge,
     recall_memory,
@@ -16,14 +25,26 @@ from pocket_agent.tools.memory.tools import (
     search_knowledge,
 )
 from pocket_agent.tools.registry import ToolRegistry
+from pocket_agent.tools.util.currency import exchange_rate
+from pocket_agent.tools.util.timezone import timezone_now
+from pocket_agent.tools.util.units import unit_convert
+from pocket_agent.tools.web.fetch import fetch_url
+from pocket_agent.tools.web.search import web_search
+from pocket_agent.tools.web.weather import current_weather
 
 
 def build_tool_registry(
     paths: PathsConfig,
-    bot=None,
     memory: MemoryService | None = None,
+    env: AppSettings | None = None,
+    project_root: Path | None = None,
+    raw_settings: dict[str, Any] | None = None,
+    bot=None,
 ) -> ToolRegistry:
     registry = ToolRegistry()
+    settings = raw_settings or {}
+    root = project_root or paths.project_root
+    reminder_store = ReminderStore(paths.queue_dir / "reminders.json")
 
     async def _list_nas(location: str | None = None, limit: int = 50):
         return await list_nas_files(paths, location=location, limit=limit)
@@ -110,6 +131,55 @@ def build_tool_registry(
     async def _current_weather(location: str):
         return await current_weather(location=location)
 
+    async def _fetch_url(url: str, max_chars: int = 12000):
+        return await fetch_url(url=url, max_chars=max_chars)
+
+    async def _timezone_now(location: str):
+        return await timezone_now(location=location)
+
+    async def _exchange_rate(from_currency: str, to_currency: str, amount: float = 1.0):
+        return await exchange_rate(
+            from_currency=from_currency,
+            to_currency=to_currency,
+            amount=amount,
+        )
+
+    async def _unit_convert(value: float, from_unit: str, to_unit: str):
+        return await unit_convert(value=value, from_unit=from_unit, to_unit=to_unit)
+
+    async def _calendar_events(days_ahead: int = 7):
+        ics = (env.calendar_ics_url if env else "") or ""
+        return await calendar_events(ics_url=ics, days_ahead=days_ahead)
+
+    async def _schedule_reminder(
+        message: str,
+        when: str,
+        user_key: str = "local",
+        chat_id: int | None = None,
+    ):
+        return await schedule_reminder(
+            reminder_store,
+            paths.logs_dir,
+            message=message,
+            when=when,
+            user_key=user_key,
+            chat_id=chat_id,
+        )
+
+    async def _list_scheduled_tasks(user_key: str | None = None):
+        return await list_scheduled_tasks(reminder_store, user_key=user_key)
+
+    async def _cancel_task(task_id: str, user_key: str | None = None):
+        return await cancel_task(reminder_store, task_id=task_id, user_key=user_key)
+
+    async def _run_allowed_script(script_name: str, timeout_seconds: int = 120):
+        return await run_allowed_script(
+            root,
+            settings,
+            script_name=script_name,
+            timeout_seconds=timeout_seconds,
+        )
+
     registry.register("list_nas_files", _list_nas)
     registry.register("index_files", _index)
     registry.register("search_files", _search)
@@ -126,5 +196,14 @@ def build_tool_registry(
     registry.register("send_telegram", _send_telegram)
     registry.register("web_search", _web_search)
     registry.register("current_weather", _current_weather)
+    registry.register("fetch_url", _fetch_url)
+    registry.register("timezone_now", _timezone_now)
+    registry.register("exchange_rate", _exchange_rate)
+    registry.register("unit_convert", _unit_convert)
+    registry.register("calendar_events", _calendar_events)
+    registry.register("schedule_reminder", _schedule_reminder)
+    registry.register("list_scheduled_tasks", _list_scheduled_tasks)
+    registry.register("cancel_task", _cancel_task)
+    registry.register("run_allowed_script", _run_allowed_script)
 
     return registry

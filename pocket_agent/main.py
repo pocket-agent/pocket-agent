@@ -15,6 +15,8 @@ def configure_logging(level: str) -> None:
 
 
 async def run_telegram(runtime: AgentRuntime) -> None:
+    from pocket_agent.automation.reminders import ReminderStore
+    from pocket_agent.automation.scheduler import ReminderScheduler, telegram_notify
     from pocket_agent.interface.telegram_bot import TelegramBot
 
     if not runtime.settings.env.telegram_bot_token:
@@ -29,8 +31,20 @@ async def run_telegram(runtime: AgentRuntime) -> None:
             "TELEGRAM_ALLOWED_USER_IDS is empty — all users will be denied."
         )
 
+    store = ReminderStore(runtime.settings.paths.queue_dir / "reminders.json")
+    token = runtime.settings.env.telegram_bot_token
+
+    async def _notify(reminder: dict) -> None:
+        await telegram_notify(token, reminder)
+
+    scheduler = ReminderScheduler(store, _notify)
+    await scheduler.start()
+
     bot = TelegramBot(runtime.settings.env, runtime.agent)
-    await bot.run_polling()
+    try:
+        await bot.run_polling()
+    finally:
+        await scheduler.stop()
 
 
 async def run_serve(runtime: AgentRuntime) -> None:

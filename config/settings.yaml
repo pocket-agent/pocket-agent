@@ -17,3 +17,10 @@ http:
     - http://127.0.0.1:5173
     - http://localhost:4173
     - http://127.0.0.1:4173
+
+# Allowlisted scripts for run_allowed_script (paths relative to pocket-agent repo root).
+automation:
+  allowed_scripts: []
+  # - name: example
+  #   path: scripts/example.sh
+  #   description: Optional maintenance script

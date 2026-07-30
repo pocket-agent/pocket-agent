@@ -1,4 +1,4 @@
-from pocket_agent.config.models import AppSettings, PathsConfig
+from pocket_agent.config.models import AppSettings, LlmConfig, PathsConfig
 from pocket_agent.core.skill_loader import Skill
 from pocket_agent.memory.db import MemoryDatabase
 from pocket_agent.memory.embeddings import EmbeddingService
@@ -8,12 +8,12 @@ from pocket_agent.memory.skill_retrieval import retrieve_skills
 
 
 class MemoryService:
-    def __init__(self, paths: PathsConfig, env: AppSettings) -> None:
+    def __init__(self, paths: PathsConfig, env: AppSettings, llm: LlmConfig | None = None) -> None:
         self._paths = paths
         self._db = MemoryDatabase(paths.memory_db_path)
         self._personal = PersonalMemoryStore(self._db)
         self._knowledge = KnowledgeBase(self._db, chunk_size=paths.memory_chunk_size)
-        self._embeddings = EmbeddingService(paths, env)
+        self._embeddings = EmbeddingService(paths, env, llm=llm)
         self._skill_top_k = paths.skill_top_k
         self._vector_limit = paths.vector_search_limit
 

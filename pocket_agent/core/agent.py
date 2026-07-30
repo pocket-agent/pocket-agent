@@ -47,6 +47,7 @@ class AgentCore:
         *,
         history: list[dict] | None = None,
         chat_id: int | None = None,
+        user_key: str | None = None,
     ) -> str:
         log_action(
             self._logs_dir,
@@ -96,25 +97,35 @@ class AgentCore:
                 prompt_parts.append("Conversation history:\n" + "\n".join(hist_lines))
 
         prompt_parts.append(f"User message: {user_text}")
-        if re.search(r"\bweather\b", user_text, re.IGNORECASE):
-            prompt_parts.append(
-                "Hint: for weather questions use tool current_weather with the city name, "
-                "not web_search."
-            )
+        self._append_tool_hints(prompt_parts, user_text)
         if memory_block:
             prompt_parts.append(memory_block)
         prompt_parts.append(f"Available skills:\n{skills_summary}")
         prompt_parts.append(
-            "User slash shortcuts: /web (internet search), /nas, /search (local files only), "
-            "/remember, /recall, /kb, /read, /help"
+            "Slash shortcuts (optional): /web, /weather, /fetch, /time, /currency, "
+            "/units, /remember, /recall, /kb, /calendar, /remind, /tasks, /help"
         )
         prompt = "\n\n".join(prompt_parts)
+
+        user_key = user_key or (str(chat_id) if chat_id is not None else "local")
+
+        async def tool_runner(tool_name: str, **kwargs: object):
+            if tool_name == "remember_memory":
+                if chat_id is not None:
+                    kwargs.setdefault("user_id", chat_id)
+                else:
+                    kwargs.setdefault("user_id", 1)
+            if tool_name in {"schedule_reminder", "list_scheduled_tasks", "cancel_task"}:
+                kwargs.setdefault("user_key", user_key)
+                if tool_name == "schedule_reminder" and chat_id is not None:
+                    kwargs.setdefault("chat_id", chat_id)
+            return await self._tools.run(tool_name, **kwargs)
 
         async def _complete(user_prompt: str, system: str) -> object:
             return await provider.complete(user_prompt, system=system)
 
         response_text = await run_agent_tool_loop(
-            self._tools,
+            tool_runner,
             _complete,
             prompt,
             self._agent_system,
@@ -137,6 +148,22 @@ class AgentCore:
             return "No skills loaded."
         return "\n".join(f"- {s.name}: {s.content.splitlines()[0]}" for s in items)
 
+    def _append_tool_hints(self, parts: list[str], user_text: str) -> None:
+        if re.search(r"\bweather\b", user_text, re.IGNORECASE):
+            parts.append(
+                "Hint: use current_weather with the city name, not web_search."
+            )
+        if re.search(r"\b(time|timezone|what time)\b", user_text, re.IGNORECASE):
+            parts.append("Hint: use timezone_now for local time in a city.")
+        if re.search(r"\b(convert|currency|exchange|usd|eur|gbp)\b", user_text, re.IGNORECASE):
+            parts.append("Hint: use exchange_rate for money conversion.")
+        if re.search(r"\b(calendar|meeting|schedule)\b", user_text, re.IGNORECASE):
+            parts.append("Hint: use calendar_events for upcoming events (ICS feed).")
+        if re.search(r"\b(remind|reminder)\b", user_text, re.IGNORECASE):
+            parts.append(
+                "Hint: use schedule_reminder with ISO datetime; confirm time zone with user if needed."
+            )
+
     def _try_tool_command(self, text: str, chat_id: int | None = None) -> dict | None:
         stripped = text.strip()
         lower = stripped.lower()
@@ -155,14 +182,79 @@ class AgentCore:
         if weather:
             return {"name": "current_weather", "location": weather.group(1).strip()}
 
+        fetch = re.match(r"^/fetch\s+(.+)$", stripped, re.IGNORECASE | re.DOTALL)
+        if fetch:
+            return {"name": "fetch_url", "url": fetch.group(1).strip()}
+
+        time_cmd = re.match(r"^/time\s+(.+)$", stripped, re.IGNORECASE | re.DOTALL)
+        if time_cmd:
+            return {"name": "timezone_now", "location": time_cmd.group(1).strip()}
+
+        currency = re.match(
+            r"^/currency\s+(\S+)\s+(\S+)(?:\s+([\d.]+))?$",
+            stripped,
+            re.IGNORECASE,
+        )
+        if currency:
+            amount = currency.group(3) or "1"
+            return {
+                "name": "exchange_rate",
+                "from_currency": currency.group(1),
+                "to_currency": currency.group(2),
+                "amount": float(amount),
+            }
+
+        units = re.match(
+            r"^/units\s+([\d.]+)\s+(\S+)\s+(\S+)$",
+            stripped,
+            re.IGNORECASE,
+        )
+        if units:
+            return {
+                "name": "unit_convert",
+                "value": float(units.group(1)),
+                "from_unit": units.group(2),
+                "to_unit": units.group(3),
+            }
+
+        if lower == "/calendar":
+            return {"name": "calendar_events"}
+
+        remind = re.match(r"^/remind\s+(.+)$", stripped, re.IGNORECASE | re.DOTALL)
+        if remind:
+            body = remind.group(1).strip()
+            split = re.match(r"^(\S+)\s+(.+)$", body, re.DOTALL)
+            if split:
+                user_key = str(chat_id) if chat_id is not None else "local"
+                return {
+                    "name": "schedule_reminder",
+                    "when": split.group(1),
+                    "message": split.group(2).strip(),
+                    "user_key": user_key,
+                    "chat_id": chat_id,
+                }
+
+        if lower == "/tasks":
+            user_key = str(chat_id) if chat_id is not None else "local"
+            return {"name": "list_scheduled_tasks", "user_key": user_key}
+
+        cancel = re.match(r"^/cancel\s+(\S+)$", stripped, re.IGNORECASE)
+        if cancel:
+            user_key = str(chat_id) if chat_id is not None else "local"
+            return {
+                "name": "cancel_task",
+                "task_id": cancel.group(1),
+                "user_key": user_key,
+            }
+
         if lower == "/kb_index":
             return {"name": "index_knowledge"}
 
         remember = re.match(r"^/remember\s+(.+)$", stripped, re.IGNORECASE | re.DOTALL)
-        if remember and chat_id is not None:
+        if remember:
             return {
                 "name": "remember_memory",
-                "user_id": chat_id,
+                "user_id": chat_id if chat_id is not None else 1,
                 "content": remember.group(1).strip(),
             }
 
@@ -289,6 +381,18 @@ class AgentCore:
             return "\n".join(lines)
 
         if tool_name == "current_weather":
+            return data.get("summary") or str(data)
+
+        if tool_name in {
+            "fetch_url",
+            "timezone_now",
+            "exchange_rate",
+            "unit_convert",
+            "calendar_events",
+            "schedule_reminder",
+            "list_scheduled_tasks",
+            "cancel_task",
+        }:
             return data.get("summary") or str(data)
 
         if tool_name == "search_files":

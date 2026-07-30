@@ -3,6 +3,8 @@ import logging
 
 from uvicorn import Config, Server
 
+from pocket_agent.automation.reminders import ReminderStore
+from pocket_agent.automation.scheduler import ReminderScheduler, telegram_notify
 from pocket_agent.interface.http_app import create_http_app
 from pocket_agent.runtime.context import AgentRuntime
 
@@ -25,7 +27,22 @@ async def run_http_server(runtime: AgentRuntime) -> None:
     else:
         logger.info("Web static dir not found — API only (build apps/web first)")
 
+    store = ReminderStore(runtime.settings.paths.queue_dir / "reminders.json")
+    token = runtime.settings.env.telegram_bot_token
+
+    async def _notify(reminder: dict) -> None:
+        if token:
+            await telegram_notify(token, reminder)
+        else:
+            logger.info("REMINDER: %s", reminder.get("message"))
+
+    scheduler = ReminderScheduler(store, _notify)
+    await scheduler.start()
+
     config = Config(app=app, host=host, port=port, log_level="info")
     server = Server(config)
     logger.info("HTTP API listening on http://%s:%s", host, port)
-    await server.serve()
+    try:
+        await server.serve()
+    finally:
+        await scheduler.stop()

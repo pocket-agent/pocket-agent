@@ -169,14 +169,15 @@ async def chat(request: Request) -> JSONResponse:
         return _err("message is required")
 
     history = body.get("history") or []
-    user_key = claims.get("sub")
-    chat_id = int(user_key) if user_key and str(user_key).isdigit() else None
+    user_key = str(claims.get("sub") or "local")
+    chat_id = int(user_key) if user_key.isdigit() else None
 
     try:
         reply = await runtime.agent.handle_chat_message(
             message,
             history=history,
             chat_id=chat_id,
+            user_key=user_key,
         )
         model = runtime.llm_router.reasoning_model()
         return _ok(

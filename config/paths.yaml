@@ -1,6 +1,6 @@
 memory:
   db_path: data/cache/memory.db
   chunk_size: 1000
-  embedding_model: text-embedding-004
+  embedding_model: gemini-embedding-001
   skill_top_k: 3
   vector_search_limit: 50

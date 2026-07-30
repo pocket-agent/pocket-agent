@@ -9,11 +9,26 @@ from typing import Any
 
 from pocket_agent.tools.base import ToolResult
 from pocket_agent.tools.catalog import AGENT_TOOL_SPECS
-from pocket_agent.tools.registry import ToolRegistry
 
 MAX_AGENT_STEPS = 6
 
+ToolRunner = Callable[..., Awaitable[ToolResult]]
+
 _FENCED_JSON_RE = re.compile(r"```(?:json)?\s*(\{.*?\})\s*```", re.DOTALL | re.IGNORECASE)
+
+_SUMMARY_TOOLS = frozenset(
+    {
+        "current_weather",
+        "timezone_now",
+        "exchange_rate",
+        "unit_convert",
+        "calendar_events",
+        "schedule_reminder",
+        "list_scheduled_tasks",
+        "cancel_task",
+        "fetch_url",
+    }
+)
 
 
 def _parse_payload(raw: str) -> tuple[str, dict[str, Any]] | None:
@@ -57,7 +72,9 @@ def parse_tool_call(text: str) -> tuple[str, dict[str, Any]] | None:
 def format_tool_result(tool_name: str, result: ToolResult) -> str:
     if not result.success:
         return f"[{tool_name}] ERROR: {result.error or 'failed'}"
-    data = result.data
+    data = result.data or {}
+    if tool_name in _SUMMARY_TOOLS and data.get("summary"):
+        return f"[{tool_name}] {data['summary']}"
     if tool_name == "web_search":
         lines = [f"[web_search] query={data.get('query')}"]
         if data.get("hint"):
@@ -69,13 +86,40 @@ def format_tool_result(tool_name: str, result: ToolResult) -> str:
         if len(lines) == 1:
             lines.append("No results.")
         return "\n".join(lines)
-    if tool_name == "current_weather":
-        return f"[current_weather] {data.get('summary', data)}"
+    if tool_name == "recall_memory":
+        memories = data.get("memories") or []
+        if not memories:
+            return f"[recall_memory] No memories for '{data.get('query')}'."
+        lines = [f"[recall_memory] query={data.get('query')}"]
+        for m in memories:
+            lines.append(f"- [{m.get('category')}] {m.get('content')}")
+        return "\n".join(lines)
+    if tool_name == "search_knowledge":
+        hits = data.get("results") or []
+        if not hits:
+            return f"[search_knowledge] No hits for '{data.get('query')}'."
+        lines = [f"[search_knowledge] query={data.get('query')}"]
+        for r in hits:
+            lines.append(f"- {r.get('source_path')}: {str(r.get('text', ''))[:200]}")
+        return "\n".join(lines)
+    if tool_name == "remember_memory":
+        return f"[remember_memory] Stored [{data.get('category')}]: {data.get('content')}"
+    if tool_name == "fetch_url":
+        text = str(data.get("text", ""))[:3500]
+        header = f"[fetch_url] {data.get('url')}"
+        if data.get("truncated"):
+            header += " [truncated]"
+        return f"{header}\n{text}"
+    if tool_name == "run_allowed_script":
+        return (
+            f"[run_allowed_script] {data.get('script')} exit={data.get('exit_code')}\n"
+            f"{data.get('stdout', '')[:2000]}"
+        )
     return f"[{tool_name}] {json.dumps(data, ensure_ascii=False)[:4000]}"
 
 
 async def run_agent_tool_loop(
-    registry: ToolRegistry,
+    tool_runner: ToolRunner,
     provider_complete: Callable[..., Awaitable[Any]],
     prompt: str,
     system: str,
@@ -101,7 +145,7 @@ async def run_agent_tool_loop(
             return last_text
 
         tool_name, args = call
-        result = await registry.run(tool_name, **args)
+        result = await tool_runner(tool_name, **args)
         tool_notes.append(format_tool_result(tool_name, result))
 
     if tool_notes:
