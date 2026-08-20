@@ -1,4 +1,4 @@
-<img src=".github/pocket-agent-image.png" width="200" alt="Pocket Agent" align="left"/>
+<img src=".github/icon-cropped.png" width="200" alt="Pocket Agent" align="left"/>
 
 <div>
 <h3>Pocket Node</h3>
