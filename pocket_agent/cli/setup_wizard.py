@@ -49,9 +49,8 @@ def run_setup(
 
     logger.info("Created %s (profile: %s)", SETUP_REL, data.get("profile", "all-local"))
     logger.info(
-        "Stack: web %s → api %s → agent %s",
-        data.get("web", {}).get("url"),
-        data.get("api", {}).get("url"),
+        "Stack: app %s → agent %s",
+        data.get("app", {}).get("url"),
         data.get("agent", {}).get("url"),
     )
     logger.info("Next: pocket-agent init  # install modules from latest releases")

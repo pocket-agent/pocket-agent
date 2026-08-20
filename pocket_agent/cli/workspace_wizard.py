@@ -19,6 +19,7 @@ from pocket_agent.cli.init_modules import install_module, load_modules_config
 from pocket_agent.cli.setup_wizard import run_setup
 from pocket_agent.cli.workspace_bootstrap import check_prerequisites, run_bootstrap
 from pocket_agent.workspace.paths import find_workspace_root, find_wizard_dist
+from pocket_agent.workspace.user_setup import load_workspace_setup
 
 try:
     from pocket_agent_sdk.auth import resolve_auth_mode
@@ -84,7 +85,7 @@ async def api_setup_post(request: Request) -> JSONResponse:
     module_modes = body.get("modules") or {}
     urls = body.get("urls") or {}
     for name, mode in module_modes.items():
-        if name not in ("web", "api"):
+        if name not in ("app", "web", "api"):
             continue
         if mode == "remote":
             overrides[name] = {"mode": "remote", "url": urls.get(name, "")}
@@ -94,8 +95,28 @@ async def api_setup_post(request: Request) -> JSONResponse:
     if body.get("ui", {}).get("primary"):
         overrides["ui"] = body["ui"]
 
-    web_mode = module_modes.get("web", "local" if profile == "all-local" else "remote")
-    api_mode = module_modes.get("api", "local" if profile == "all-local" else "remote")
+    app_mode = module_modes.get(
+        "app",
+        module_modes.get("web", "local" if profile == "all-local" else "remote"),
+    )
+    if app_mode == "remote":
+        app_url = urls.get("app") or urls.get("web") or urls.get("api") or ""
+        overrides["app"] = {"mode": "remote", "url": app_url}
+        overrides["web"] = {"mode": "remote", "url": app_url}
+        overrides["api"] = {"mode": "remote", "url": app_url}
+    else:
+        defaults = load_workspace_setup(workspace)
+        local_url = (
+            (defaults.get("app") or {}).get("url")
+            or (defaults.get("web") or {}).get("url")
+            or "http://localhost:5173"
+        )
+        overrides["app"] = {"mode": "local", "url": local_url}
+        overrides["web"] = {"mode": "local", "url": local_url}
+        overrides["api"] = {"mode": "local", "url": local_url}
+
+    web_mode = module_modes.get("web", app_mode)
+    api_mode = module_modes.get("api", app_mode)
     if resolve_auth_mode is not None:
         overrides["auth"] = {"mode": resolve_auth_mode(profile, web_mode, api_mode)}
     elif profile == "all-local" and web_mode == "local" and api_mode == "local":

@@ -63,30 +63,30 @@ def write_local_env(
     if _copy_example_if_missing(agent_env, agent_example):
         actions.append(f"created:{agent_env.relative_to(workspace)}")
 
-    web_env = workspace / "pocket-agent-web-app" / ".env.local"
-    web_example = workspace / "pocket-agent-web-app" / ".env.example"
-    if _copy_example_if_missing(web_env, web_example):
-        actions.append(f"created:{web_env.relative_to(workspace)}")
+    app_env = workspace / "pocket-agent-app" / ".env.local"
+    app_example = workspace / "pocket-agent-app" / ".env.example"
+    if _copy_example_if_missing(app_env, app_example):
+        actions.append(f"created:{app_env.relative_to(workspace)}")
 
-    api_env = workspace / "pocket-agent-api-app" / ".dev.vars"
-    api_example = workspace / "pocket-agent-api-app" / ".env.example"
-    if _copy_example_if_missing(api_env, api_example):
-        actions.append(f"created:{api_env.relative_to(workspace)}")
+    worker_env = workspace / "pocket-agent-app" / ".dev.vars"
+    worker_example = workspace / "pocket-agent-app" / ".dev.vars.example"
+    if _copy_example_if_missing(worker_env, worker_example):
+        actions.append(f"created:{worker_env.relative_to(workspace)}")
 
     if _upsert_env_line(agent_env, "AUTH_MODE", mode):
         actions.append(f"updated:pocket-agent/.env AUTH_MODE={mode}")
-    if _upsert_env_line(web_env, "VITE_AUTH_MODE", mode):
-        actions.append(f"updated:pocket-agent-web-app/.env.local VITE_AUTH_MODE={mode}")
-    if _upsert_env_line(api_env, "AUTH_MODE", mode):
-        actions.append(f"updated:pocket-agent-api-app/.dev.vars AUTH_MODE={mode}")
+    if _upsert_env_line(app_env, "VITE_AUTH_MODE", mode):
+        actions.append(f"updated:pocket-agent-app/.env.local VITE_AUTH_MODE={mode}")
+    if _upsert_env_line(worker_env, "AUTH_MODE", mode):
+        actions.append(f"updated:pocket-agent-app/.dev.vars AUTH_MODE={mode}")
 
     if mode == "google" and google_client_id:
         if _upsert_env_line(agent_env, "GOOGLE_CLIENT_ID", google_client_id):
             actions.append("updated:pocket-agent/.env GOOGLE_CLIENT_ID")
-        if _upsert_env_line(web_env, "VITE_GOOGLE_CLIENT_ID", google_client_id):
-            actions.append("updated:pocket-agent-web-app/.env.local VITE_GOOGLE_CLIENT_ID")
-        if _upsert_env_line(api_env, "GOOGLE_CLIENT_ID", google_client_id):
-            actions.append("updated:pocket-agent-api-app/.dev.vars GOOGLE_CLIENT_ID")
+        if _upsert_env_line(app_env, "VITE_GOOGLE_CLIENT_ID", google_client_id):
+            actions.append("updated:pocket-agent-app/.env.local VITE_GOOGLE_CLIENT_ID")
+        if _upsert_env_line(worker_env, "GOOGLE_CLIENT_ID", google_client_id):
+            actions.append("updated:pocket-agent-app/.dev.vars GOOGLE_CLIENT_ID")
 
     if gemini_api_key:
         if _upsert_env_line(agent_env, "GEMINI_API_KEY", gemini_api_key):
@@ -127,16 +127,14 @@ def check_prerequisites(workspace_root: Path | None = None) -> dict:
         "cargo": has_cmd("cargo"),
         "rustc": has_cmd("rustc"),
         "agent_venv": (agent / ".venv").is_dir(),
-        "web_node_modules": has_path("pocket-agent-web-app/node_modules"),
-        "api_node_modules": has_path("pocket-agent-api-app/node_modules"),
+        "app_node_modules": has_path("pocket-agent-app/node_modules"),
         "desktop_node_modules": has_path("pocket-agent-desktop-app/node_modules"),
         "wizard_built": has_path("pocket-agent-wizard/dist/index.html")
         or has_path("wizard/dist/index.html"),
         "desktop_icons": has_path("pocket-agent-desktop-app/src-tauri/icons/32x32.png"),
         "auth_mode": workspace_auth_mode(workspace),
         "modules": {
-            "web": has_path("pocket-agent-web-app/package.json"),
-            "api": has_path("pocket-agent-api-app/package.json"),
+            "app": has_path("pocket-agent-app/package.json"),
             "desktop": has_path("pocket-agent-desktop-app/package.json"),
             "agent": has_path("pocket-agent/pyproject.toml"),
         },

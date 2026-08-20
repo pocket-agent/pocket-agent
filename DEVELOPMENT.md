@@ -1,11 +1,11 @@
 # Development — pocket-agent
 
-Python Pocket Node repository. Workspace layout: [../docs/WORKSPACE_LAYOUT.md](../docs/WORKSPACE_LAYOUT.md).
+Python Pocket Node repository. Workspace layout: sibling modules under the org folder (`config/modules.yaml`).
 
 ## Prerequisites
 
 - Python 3.12+
-- Sibling modules (web, api) for full stack — installed via `pocket-agent init`
+- Sibling **`pocket-agent-app`** (fullstack UI + API) for the full stack — installed via `pocket-agent init`
 
 ## This repo
 
@@ -31,7 +31,7 @@ pip install -e ".[dev]"
 From `pocket-agent/` with venv active:
 
 - `pocket-agent wizard` — uses `../config/`, `../pocket-agent-wizard/`
-- `pocket-agent init` — installs `pocket-agent-web-app`, etc. as siblings
+- `pocket-agent init` — installs `pocket-agent-app`, `pocket-agent-cli`, etc. as siblings
 
 ## Local stack
 
@@ -40,8 +40,7 @@ See `../scripts/dev-desktop.sh` or `../scripts/dev-stack.sh`.
 | Service | Directory | Port |
 |---------|-----------|------|
 | Agent (here) | `.` | 8787 |
-| API | `../pocket-agent-api-app` | 8788 |
-| Web | `../pocket-agent-web-app` | 5173 |
+| App (UI + API) | `../pocket-agent-app` | 5173 |
 
 ## Tests
 

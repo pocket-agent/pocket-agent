@@ -226,8 +226,8 @@ def run_init(
         logger.info(result)
 
     logger.info(
-        "Done. Each module is a separate project — commit inside pocket-agent-web-app, "
-        "pocket-agent-api-app, etc."
+        "Done. Each module is a separate project — commit inside pocket-agent-app, "
+        "pocket-agent-cli, etc."
     )
     return 0
 

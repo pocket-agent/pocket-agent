@@ -73,6 +73,7 @@ pip install -e ".[dev]"
 
 | Doc | Description |
 |-----|-------------|
+| [index.md](index.md) | OKF knowledge bundle |
 | [DEVELOPMENT.md](DEVELOPMENT.md) | Local setup and testing |
 | [INSTRUCTIONS.md](INSTRUCTIONS.md) | Agent development rules |
 | [AGENT_PROTOCOL.md](AGENT_PROTOCOL.md) | HTTP and chat protocol |
